@@ -2,7 +2,7 @@ name: "Generate CSV"
 
 on:
   schedule:
-  - cron: "29 * * * *"
+  - cron: "49 * * * *"
 
 jobs:
   byd:
