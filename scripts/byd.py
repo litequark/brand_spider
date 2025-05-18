@@ -1,6 +1,5 @@
 import os
 import random
-import string
 import requests
 import json
 import csv
@@ -14,7 +13,7 @@ RESULT_FIELDS = ["省", "Province", "市", "City", "区", "店名", "类型", "�
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # 进入父目录（project）
-OUTPUT_PATH = os.path.join(SCRIPT_DIR, "byd.csv")
+OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/byd.csv")
 
 default_payload = {
     "dealerKey": "",
@@ -128,9 +127,9 @@ for dealer_type in {"0", "1"}:
         for m in response_dealers_data:
             dealer_count += 1
             # 删除\n
-            for p in m.values():
-                if isinstance(p, str) and '\\n' in p:
-                    p = p.replace('\\n', ' ')
+            for k in m: # keys
+                if isinstance(m[k], str):
+                    m[k] = m[k].replace('\\n', ' ').replace('\n', ' ')
 
             dealer_type_literal = ""
             if dealer_type == "0":
