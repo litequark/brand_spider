@@ -1,4 +1,4 @@
-name: "Generate CSV"
+name: "Run spiders & generate CSV results"
 
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ jobs:
 
     - name: "Retrieve data to CSV"
       run: |
-        python byd/byd.py
+        python scripts/byd.py
 
     - name: "Upload CSV"
       uses: actions/upload-artifact@v4
