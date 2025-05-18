@@ -40,6 +40,9 @@ def sleep_with_random(interval: int,
     sleep(interval + rand)
 
 
+#创建父目录（如果不存在)
+os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+
 with open(OUTPUT_PATH, "w", encoding="utf-8") as f: # 清除csv文件
     # 写入表头
     list_writer = csv.writer(f, quoting=csv.QUOTE_ALL)
