@@ -1,0 +1,22 @@
+name: "Generate CSV"
+
+on:
+  schedule:
+  - cron: "29 * * * *"
+
+jobs:
+  byd:
+    name: "byd"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: "Retrieve data to CSV"
+      run: |
+        python byd/byd.py
+
+    - name: "Upload CSV"
+      uses: actions/upload-artifact@v4
+      with: 
+        name: csv-output
+        path: byd.csv
+    
