@@ -1,4 +1,4 @@
-name: "Run Audi"
+name: "Run Benz"
 
 on:
   workflow_dispatch:
