@@ -1,0 +1,27 @@
+name: "Run Audi"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  benz:
+    name: "benz"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+    - name: Check out the repository to the runner
+      uses: actions/checkout@v4
+
+    - name: "Retrieve data to CSV"
+      run: |
+        python scripts/benz.py
+
+    - name: "Upload CSV"
+      uses: actions/upload-artifact@v4
+      with: 
+        name: csv-output
+        path: output/benz.csv
+    
