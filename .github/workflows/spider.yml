@@ -6,13 +6,14 @@ on:
   schedule:
   - cron: "30 20 * * *"
 
+defaults:
+  run:
+    working-directory: ./scripts
+
 jobs:
   byd:
     name: "byd"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: .
 
     steps:
     - name: Check out the repository to the runner
@@ -20,11 +21,46 @@ jobs:
 
     - name: "Retrieve data to CSV"
       run: |
-        python scripts/byd.py
+        python byd.py
 
     - name: "Upload CSV"
       uses: actions/upload-artifact@v4
       with: 
-        name: csv-output
-        path: output/byd.csv
+        name: byd
+        path: ../output/*.csv
+  
+  audi:
+    name: "audi"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository to the runner
+      uses: actions/checkout@v4
+
+    - name: "Retrieve data to CSV"
+      run: |
+        python audi.py
+
+    - name: "Upload CSV"
+      uses: actions/upload-artifact@v4
+      with: 
+        name: audi
+        path: ../output/*.csv
     
+  benz:
+    name: "benz"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository to the runner
+      uses: actions/checkout@v4
+
+    - name: "Retrieve data to CSV"
+      run: |
+        python benz.py
+
+    - name: "Upload CSV"
+      uses: actions/upload-artifact@v4
+      with: 
+        name: benz
+        path: ../output/*.csv
