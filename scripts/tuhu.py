@@ -267,14 +267,15 @@ def process_shop(shop):
     else:
         Servicetype = "轮胎门店"
 
-
     return {
         "品牌": "途虎养车",  # 品牌强制统一
         "省": base["province"].replace("自治区", ""),  # 简化省级名称
+        "Province":"",
         "市区辅助": f"{base['district']}",  # 合并行政区域
+        "City/Area":"",
         "区": base["district"],
         "店名": base["carparName"],
-        "类型": stats["type"],
+        "类型": Servicetype,
         "地址": base["address"],
         "电话": base["telephone"],
         "备注": ""  # 预留字段
@@ -292,15 +293,18 @@ for serviceType in service_type:
                    "https://cl-gateway.tuhu.cn/cl-shop-api/shopList/getMainShopList",
                    headers=headers,
                    data=json.dumps(payload_dealers, ensure_ascii=False),
+                   timeout=10
                )
+               if(resp.status_code == 200):
+                   print("调取数据成功")
+                   data = resp.json()["data"]
 
-               data = resp.json()["data"]
 
-               for shop in data["shopList"]:
+                   for shop in data["shopList"]:
 
-                 row = process_shop(shop)
-                 print(row)
-                 with open(OUTPUT_PATH, "a", encoding="utf-8", newline='') as f:
+                    row = process_shop(shop)
+                    print(row)
+                    with open(OUTPUT_PATH, "a", encoding="utf-8", newline='') as f:
                      dict_writer = csv.DictWriter(f, fieldnames=RESULT_FIELDS, quoting=csv.QUOTE_ALL)
                      dict_writer.writerow(row)
 
