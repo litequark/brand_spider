@@ -47,6 +47,9 @@ def get_audi_cities():
 
 citys = get_audi_cities()
 
+for city in citys:
+    print(city)
+
 
 INTERVAL = 1  # 网络请求间隔（秒）
 API_URL = "https://www.audi.cn/bin/dealerprocity/query.json"

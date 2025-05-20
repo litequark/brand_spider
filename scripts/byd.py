@@ -149,17 +149,17 @@ for sale_network in {"2", "3"}:
                         dealer_type2_literal += attr
 
                 dealer = {
-                        "省": m["provinceName"],
-                        "Province": "",
-                        "市": m["cityName"],
-                        "City": "",
-                        "区": "",
-                        "店名": m["dealerName"],
-                        "类型": dealer_type_literal,
-                        "类型2": dealer_type2_literal,
-                        "地址": m["dealerAddress"],
-                        "电话": m["dealerTel"],
-                        "备注": ""
+                    "省": m["provinceName"],
+                    "Province": "",
+                    "市": m["cityName"],
+                    "City": "",
+                    "区": "",
+                    "店名": m["dealerName"],
+                    "类型": dealer_type_literal,
+                    "类型2": dealer_type2_literal,
+                    "地址": m["dealerAddress"],
+                    "电话": m["dealerTel"],
+                    "备注": ""
                 }
                 print(dealer)
                 with open(OUTPUT_PATH, "a", encoding="utf-8", newline='') as f:
