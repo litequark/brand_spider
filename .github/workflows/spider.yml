@@ -27,7 +27,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with: 
         name: byd
-        path: ${GITHUB_WORKSPACE}/output/*.csv
+        path: ${{ github.workspace }}/output/*.csv
   
   audi:
     name: "audi"
@@ -45,7 +45,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with: 
         name: audi
-        path: ${GITHUB_WORKSPACE}/output/*.csv
+        path: ${{ github.workspace }}/output/*.csv
     
   benz:
     name: "benz"
@@ -63,4 +63,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with: 
         name: benz
-        path: ${GITHUB_WORKSPACE}/output/*.csv
+        path: ${{ github.workspace }}/output/*.csv
