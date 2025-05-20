@@ -13,7 +13,7 @@ request_count = 0
 MAX_RETRIES = 3
 INTERVAL = 1
 
-SELECT_BANDS_API ="https://cl-gateway.tuhu.cn/cl-vehicle-aggregation/vehicle/selectBrands"
+SELECT_BRANDS_API = "https://cl-gateway.tuhu.cn/cl-vehicle-aggregation/vehicle/selectBrands"
 
 RESULT_FIELDS = ["品牌","省", "Province", "市区辅助", "City/Area", "区", "店名", "类型", "地址", "电话", "备注"]
 
@@ -24,7 +24,12 @@ OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/tuhu.csv")
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     "Content-Type": "application/json",
-    "Accept-Encoding": "gzip"
+    "Accept-Encoding": "gzip",
+    "Authorization": "Bearer [实际Token]",  # 需动态获取
+    "Referer": "https://www.tuhu.cn/",
+    "Host": "cl-gateway.tuhu.cn",
+    "X-Requested-With": "XMLHttpRequest",
+    "auth-type":"oauth"
 }
 
 def sleep_with_random(interval: int,
@@ -42,9 +47,9 @@ with open(OUTPUT_PATH, "w", encoding="utf-8") as f: # 清除csv文件
 dealer_count = 0
 
 
-def get_brand_names(SELECT_BANDS_API):
+def get_brand_names(select_brands_api):
     try:
-        response = requests.get(SELECT_BANDS_API,headers=headers,timeout=10)
+        response = requests.get(select_brands_api, headers=headers, timeout=10)
         response.raise_for_status()
         sleep_with_random(1,1)
         json_data = response.json()
@@ -60,7 +65,7 @@ def get_brand_names(SELECT_BANDS_API):
     except Exception as e:
         print(f"未知错误: {str(e)}")
         return []
-brands = get_brand_names(SELECT_BANDS_API)
+brands = get_brand_names(SELECT_BRANDS_API)
 print("提取的品牌列表：")
 for brand in brands:
     print(f"<UNK>: {brand}")
@@ -69,6 +74,12 @@ SELECT_MODELS_BY_BRANDS_URL="https://cl-gateway.tuhu.cn/cl-vehicle-aggregation/v
 
 def fetch_models_by_brands(brand_full_names: List[str], max_retries=5) -> List[Dict]:
     models = []
+    brand_headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Content-Type": "application/json",
+        "Accept-Encoding": "gzip",
+        "auth-type":"oauth"
+    }
     for brand_full in brand_full_names:
         payload = {"brandName": brand_full}
         attempt = 0
@@ -76,7 +87,7 @@ def fetch_models_by_brands(brand_full_names: List[str], max_retries=5) -> List[D
             try:
                 response = requests.post(
                     SELECT_MODELS_BY_BRANDS_URL,
-                    headers=headers,
+                    headers=brand_headers,
                     data=json.dumps(payload,ensure_ascii=False),
                     timeout=15
                 )
@@ -180,7 +191,7 @@ print(city_list)
 GET_MAIN_SHOP ="https://cl-gateway.tuhu.cn/cl-shop-api/shopList/getMainShopList"
 
 payload_dealers_default = {
-"isMatchRegion": "true",
+"isMatchRegion": True,
   "pageSize": "",
   "pageIndex": "",
   "city": "",
@@ -246,7 +257,7 @@ for serviceType in service_type:
                         "serviceType": serviceType,
                         "city": city,
                         "pageIndex": page,
-                        "pageSize": 100,
+                        "pageSize": 10,
                         "province": province
                     })
 
