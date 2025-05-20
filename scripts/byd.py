@@ -144,7 +144,7 @@ for sale_network in {"2", "3"}:
                 if has_attr:
                     dealer_type2_literal += '店'
 
-                for attr in {"商超店", "城市展厅"}:
+                for attr in {"商超店", "城市展厅", "钣喷中心"}:
                     if attr in m["dealerName"]:
                         dealer_type2_literal += attr
 
