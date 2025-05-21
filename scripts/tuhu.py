@@ -245,13 +245,15 @@ for serviceType in service_type:
                 try:
                     payload_dealers = payload_dealers_default.copy()
                     payload_dealers.update({
-                        "vehicleId": model,
+
                         "serviceType": serviceType,
                         "city": city,
                         "pageIndex": page,
-                        "pageSize": 10,
-                        "province": province
-                    })
+                        "pageSize": 20,
+                        "province": province,
+
+                        })
+                    payload_dealers["vehicleInfo"]["vehicleId"] = model
                     print(payload_dealers)
 
                     resp = requests.post(
@@ -264,13 +266,19 @@ for serviceType in service_type:
                     resp.raise_for_status()
 
                     if resp.status_code == 200:
+                      print("成功访问api")
+
+                      if resp.json().get('code') == 10000:
+                        print("操作成功")
                         data = resp.json().get("data")
+                        if data:
+                            print(json.dumps(data,  ensure_ascii=False)+"返回的data")
                         retry_data_count = 0
 
                         while data is None and retry_data_count < MAX_RETRIES:
                             print(
                                 f"data为None，重试第{retry_data_count + 1}次，serviceType={serviceType}, province={province}, city={city}, model={model}")
-                            sleep_with_random(1, 2)
+
                             resp = requests.post(
                                 GET_MAIN_SHOP,
                                 headers=headers,
@@ -305,6 +313,7 @@ for serviceType in service_type:
                             if unique_key not in seen:
                                 seen.add(unique_key)
                                 shops_buffer.append(row)
+                                print(json.dumps(row, ensure_ascii=False))
                                 dealer_count += 1
 
                                 if len(shops_buffer) >= batch_size:
@@ -314,10 +323,10 @@ for serviceType in service_type:
                                     shops_buffer.clear()
 
                         total_page = data.get("totalPage", 1)
-                        if page >= total_page:
+                        if page >= total_page or page >= 100:
                             break
                         page += 1
-                        sleep(random.uniform(1.2, 3.5))
+                        sleep(random.uniform(1.2, 1))
                         request_count += 1
 
                     retries = 0  # 成功请求后重置重试计数器
