@@ -184,7 +184,7 @@ model_ids = [item['modelId'] for item in models_data]
 print(model_ids)
 
 payload_dealers_default = {
-"isMatchRegion": True,
+"isMatchRegion": False,
   "pageSize": "",
   "pageIndex": "",
   "city": "",
