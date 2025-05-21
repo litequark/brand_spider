@@ -4,13 +4,13 @@
 
 `location_translator`模块提供了两个函数：`get_en_city`和`get_en_province`，用于将中文的城市和省份名称转换为英文名称。
 
-导入方法：
+### 导入方法
 
 ```python
 from util.location_translator import get_en_city, get_en_province
 ```
 
-示例用法：
+### 示例用法
 
 ```python
 # 获取城市英文名
