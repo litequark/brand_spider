@@ -12,7 +12,7 @@ API = "https://site-api.byd.com/domestic-official-api/store/"
 RESULT_FIELDS = ["省", "Province", "市", "City", "区", "店名", "类型", "类型2", "地址", "电话", "备注"]
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # 进入父目录（project）
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)#进入子目录
 OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/byd.csv")
 
 default_payload = {

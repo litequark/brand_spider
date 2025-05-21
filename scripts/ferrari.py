@@ -5,9 +5,8 @@ import json
 from pypinyin import lazy_pinyin, Style
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output")
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-OUTPUT_PATH = os.path.join(OUTPUT_DIR, "ferrari.csv")
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)#进入子目录
+OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/ferrari.csv")
 
 API_URL = "https://api.onthemap.io/server/v1/api/location"
 params = {
