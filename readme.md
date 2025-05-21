@@ -38,4 +38,6 @@
 
 ## 关于省市名称的中英文转换
 
-本项目中，请使用util文件夹下的location_translator模块进行中英转换，具体使用说明参考util文件夹下的[Readme文件](/scripts/util/readme.md#location_translator行政单位名称中英转换)。
+本项目中，请使用util文件夹下的location_translator模块进行中英转换。
+
+参见[使用指南](/scripts/util/readme.md#location_translator行政单位名称中英转换)。
