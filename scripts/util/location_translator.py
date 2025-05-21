@@ -26,7 +26,17 @@ class LocationTranslator:
         返回值:
             城市的英文名字符串，如果未找到则返回原中文名
         """
-        return self.cities_dict.get(city_zh, city_zh)
+        # 精确匹配
+        if city_zh in self.cities_dict:
+            return self.cities_dict[city_zh]
+        
+        # 模糊匹配
+        for key, value in self.cities_dict.items():
+            if city_zh in key:
+                return value
+        
+        # 未找到匹配项，返回原始输入
+        return city_zh
     
     def get_en_province(self, province_zh: str) -> str:
         """
@@ -38,35 +48,18 @@ class LocationTranslator:
         返回值:
             省份的英文名字符串，如果未找到则返回原中文名
         """
-        return self.provinces_dict.get(province_zh, province_zh)
-
-# 为了方便直接调用，创建一个全局实例
-_translator = LocationTranslator()
-
-# 提供直接调用的函数
-def get_en_city(city_zh: str) -> str:
-    """
-    将中文城市名转换为英文
-    
-    参数:
-        city_zh: 城市的中文名字符串
+        # 精确匹配
+        if province_zh in self.provinces_dict:
+            return self.provinces_dict[province_zh]
         
-    返回值:
-        城市的英文名字符串，如果未找到则返回原中文名
-    """
-    return _translator.get_en_city(city_zh)
-
-def get_en_province(province_zh: str) -> str:
-    """
-    将中文省份名转换为英文
-    
-    参数:
-        province_zh: 省级行政区的中文名字符串
+        # 模糊匹配
+        for key, value in self.provinces_dict.items():
+            if province_zh in key:
+                return value
         
-    返回值:
-        省份的英文名字符串，如果未找到则返回原中文名
-    """
-    return _translator.get_en_province(province_zh)
+        # 未找到匹配项，返回原始输入
+        return province_zh
+
 # 为了方便直接调用，创建一个全局实例
 _translator = LocationTranslator()
 
