@@ -4,6 +4,7 @@ import requests
 import json
 import csv
 from time import sleep
+from util.location_translator import get_en_province, get_en_city
 
 INTERVAL = 1  # 网络请求间隔（秒）
 
@@ -150,9 +151,9 @@ for sale_network in {"2", "3"}:
 
                 dealer = {
                     "省": m["provinceName"],
-                    "Province": "",
+                    "Province": get_en_province(m["provinceName"]),
                     "市": m["cityName"],
-                    "City": "",
+                    "City": get_en_city(m["cityName"]),
                     "区": "",
                     "店名": m["dealerName"],
                     "类型": dealer_type_literal,
