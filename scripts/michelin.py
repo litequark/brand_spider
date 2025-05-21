@@ -1,3 +1,11 @@
+"""
+TO-DO:
+
+- 省份及其英文
+- 可克达拉市的英文
+
+"""
+
 import os
 import random
 import requests
