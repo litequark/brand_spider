@@ -51,7 +51,7 @@ def save_to_csv(data):
                 ""  # 备注（置空）
             ]
             writer.writerow(row)
-            print(f"爬取 理想 {item.get('provinceName', '')} {item.get('cityName', '')} {item.get('name', '')} 成功")
+            print(f"爬取 理想 {item.get('provinceName', '')} {item.get('cityName', '')} {item.get('name', '')} {item.get('countyName', '')}{item.get('address', '')}{item.get('telephone', '')}成功")
 
 
 
