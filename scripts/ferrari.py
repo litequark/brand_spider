@@ -64,11 +64,11 @@ def process_features(raw_data):
         record = [
             "法拉利",  # 品牌
             province_cn,  # 省（中文）
-            province_py,  # Province（拼音）
+            "",
             city_cn,  # 市区辅助（市中文）
-            city_py,  # City/Area（拼音）
-            prop.get("main_CitySub-DivisionName", ""),  # 区
-            prop.get("Name", ""),  # 店名
+            "",
+            prop.get("main_CitySub-DivisionName", ""),
+            prop.get("Name", ""),
             "展厅" if "showroom" in prop.get("DealerType", "") else "服务中心",  # 类型
             f'{prop.get("Address", "")}',  # 地址
             prop.get("Telephone", "").replace("0086", "+86"),  # 电话

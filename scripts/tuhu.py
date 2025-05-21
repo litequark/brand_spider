@@ -10,7 +10,7 @@ seen = set()
 batch_size = 1000
 shops_buffer = []
 request_count = 0
-MAX_RETRIES = 3
+MAX_RETRIES = 5
 INTERVAL = 1
 GET_CITY_API="https://cl-gateway.tuhu.cn/cl-base-region-query/region/selectCityList"
 
@@ -234,6 +234,7 @@ def process_shop(shop):
         "备注": ""
     }
 shops = []
+
 for serviceType in service_type:
     for province, city in city_list:
         for model in model_ids:
@@ -262,7 +263,27 @@ for serviceType in service_type:
                     resp.raise_for_status()
 
                     if resp.status_code == 200:
-                        data = resp.json().get("data", {})
+                        data = resp.json().get("data")
+                        retry_data_count = 0
+
+                        while data is None and retry_data_count < MAX_RETRIES:
+                            print(
+                                f"data为None，重试第{retry_data_count + 1}次，serviceType={serviceType}, province={province}, city={city}, model={model}")
+                            sleep_with_random(1, 2)
+                            resp = requests.post(
+                                GET_MAIN_SHOP,
+                                headers=headers,
+                                data=json.dumps(payload_dealers, ensure_ascii=False),
+                                timeout=20
+                            )
+                            sleep_with_random(1, 1)
+                            resp.raise_for_status()
+                            data = resp.json().get("data")
+                            retry_data_count += 1
+
+                        if not isinstance(data, dict):
+                            data = {}
+
                         shop_list = data.get("shopList")  # 关键修改：不使用默认值
 
                         # 处理 shopList 为 null 的情况
@@ -271,7 +292,8 @@ for serviceType in service_type:
 
                         # 处理 shopList 为空列表的情况
                         if not shop_list:
-                            print(f"没有相关信息: serviceType={serviceType}, province={province}, city={city}, model={model}")
+                            print(
+                                f"没有相关信息: serviceType={serviceType}, province={province}, city={city}, model={model}")
                             break
 
                         # 正常处理数据
