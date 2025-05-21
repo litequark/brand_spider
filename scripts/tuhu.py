@@ -181,7 +181,7 @@ print(f"共获取 {len(models_data)} 款车型数据")
 
 model_ids = [item['modelId'] for item in models_data]
 
-
+print(model_ids)
 
 payload_dealers_default = {
 "isMatchRegion": True,
@@ -252,6 +252,7 @@ for serviceType in service_type:
                         "pageSize": 10,
                         "province": province
                     })
+                    print(payload_dealers)
 
                     resp = requests.post(
                         GET_MAIN_SHOP,
