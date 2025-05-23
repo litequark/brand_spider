@@ -23,7 +23,6 @@ OUTPUT_PATH = os.path.join(SCRIPT_DIR, "output/huaWei.csv")
 
 
 def fetch_stores(brand_code):
-    """抓取指定品牌的门店数据"""
     payload = {"brandCodes": [brand_code]}
     try:
         response = requests.post(API_URL, json=payload, timeout=10)
