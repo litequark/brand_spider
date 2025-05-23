@@ -11,7 +11,6 @@ BRAND_MAPPING = {
     "CH": "华为智界",
     "BQ": "华为享界"
 }
-
 def sleep_with_random(interval: int,
                       rand_max: int) -> None:
     rand = random.random() * rand_max
