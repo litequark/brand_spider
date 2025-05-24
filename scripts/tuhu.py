@@ -94,7 +94,7 @@ def fetch_models_by_brands(brand_full_names: List[str], max_retries=5) -> List[D
                     timeout=15
                 )
                 response.raise_for_status()
-                sleep_with_random(1, 1)
+                sleep_with_random(1, 2)
                 if response.status_code == 200:
                     resp_data = response.json()
                     if resp_data.get('code') == 10000:
