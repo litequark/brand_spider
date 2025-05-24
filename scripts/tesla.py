@@ -32,6 +32,9 @@ with open(OUTPUT_PATH, 'w', newline='', encoding='utf-8-sig') as f:
 
 processed_stores_identifiers = set()  # 新增：用于存储已处理店面的唯一标识符
 chrome_options = ChromeOptions()
+
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 driver = webdriver.Chrome(options=chrome_options)
 driver.set_page_load_timeout(60)  # 设置页面加载超时为60秒
 driver.implicitly_wait(10)
