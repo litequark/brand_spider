@@ -30,7 +30,7 @@ jobs:
       uses: browser-actions/setup-chrome@v1.7.3
       with:
         # The Google Chrome/Chromium version to install and use.
-        chrome-version: 134
+        chrome-version: 136
         # Install the compatible version of ChromeDriver with the installed Google Chrome/Chromium.
         install-chromedriver: true
 
