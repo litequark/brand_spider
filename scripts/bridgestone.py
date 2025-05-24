@@ -3,12 +3,11 @@ import logging
 import os
 from time import sleep
 import re
-import bs4
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.chrome.options import Options
-from util.location_translator import get_en_province, get_en_city
+from util.location_translator import get_en_city
 
 
 def save_store_info_to_csv(fields: list, store_dict: dict, file_path: str) -> None:
@@ -21,7 +20,7 @@ def save_store_info_to_csv(fields: list, store_dict: dict, file_path: str) -> No
 
 def parse_div_store_info(city:str, district:str, store_element, store_dict: dict) -> None:
     store_dict.update({"省": str(),
-                          "Province": get_en_province(str()),
+                          "Province": str(),
                           "市区辅助": city,
                           "City/Area": get_en_city(city),
                           "区": district,
@@ -195,14 +194,6 @@ try:
                         print(store_info)
                         '''写入CSV'''
                         save_store_info_to_csv(RESULT_FIELDS, store_info, OUTPUT_PATH)
-
-                    # 分门店处理
-                    # for store in stores:
-
-                    # #agencys-region2 > div:nth-child(1) > div.shop_left > div.shop_name
-                    # #agencys-region2 > div:nth-child(1) > div.shop_left > div.shop_address > span
-                    # #agencys-region2 > div:nth-child(1) > div.shop_phone > a:nth-child(2) > span
-                    # #agencys-region2 > div:nth-child(1) > div.sl_pop > div.square
 
                     driver.find_element(by=By.ID, value='city_span').click()
                     btn_alphabet_group.click()
