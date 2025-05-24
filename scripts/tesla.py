@@ -5,7 +5,7 @@ import csv
 import bs4
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.devtools.v134.css import CSSRule
+# from selenium.webdriver.common.devtools.v134.css import CSSRule # 注释掉或删除此行
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException as SeleniumTimeoutException  # 重命名以区分
