@@ -5,8 +5,7 @@ import csv
 import bs4
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options as ChromeOptions # 新增导入
-# from selenium.webdriver.common.devtools.v134.css import CSSRule # 注释掉或删除此行
+from selenium.webdriver.common.devtools.v136.css import CSSRule
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException as SeleniumTimeoutException  # 重命名以区分
@@ -31,11 +30,7 @@ with open(OUTPUT_PATH, 'w', newline='', encoding='utf-8-sig') as f:
     writer.writeheader()
 
 processed_stores_identifiers = set()  # 新增：用于存储已处理店面的唯一标识符
-chrome_options = ChromeOptions()
-
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
-driver = webdriver.Chrome(options=chrome_options)
+driver = webdriver.Chrome()
 driver.set_page_load_timeout(60)  # 设置页面加载超时为60秒
 driver.implicitly_wait(10)
 
