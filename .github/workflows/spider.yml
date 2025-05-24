@@ -64,3 +64,43 @@ jobs:
       with: 
         name: benz
         path: ${{ github.workspace }}/output/*.csv
+
+  bridgestone:
+    name: "bridgestone"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - name: Check out the repository to the runner
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5.6.0
+        with:
+          # Version range or exact version of Python or PyPy to use, using SemVer's version range syntax. Reads from .python-version if unset.
+          python-version: 3.13
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1.7.3
+        with:
+          # The Google Chrome/Chromium version to install and use.
+          chrome-version: 136
+          # Install the compatible version of ChromeDriver with the installed Google Chrome/Chromium.
+          install-chromedriver: true
+
+      - name: "Retrieve data to CSV"
+        run: |
+          python scripts/bridgestone.py
+
+      - name: "Upload CSV"
+        uses: actions/upload-artifact@v4
+        with:
+          name: csv-output
+          path: output/bridgestone.csv
