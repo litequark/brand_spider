@@ -25,6 +25,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install selenium.webdriver.common.devtools.v134
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser  # 安装 Chromium 浏览器
 
     - name: "Retrieve data to CSV"
       run: |
