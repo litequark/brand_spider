@@ -99,7 +99,7 @@ jobs:
       - name: "Upload data"
         uses: actions/upload-artifact@v4
         with:
-          name: csv-output
+          name: bridgestone
           path: ${{ github.workspace }}/output/*.csv
 
   michelin:
