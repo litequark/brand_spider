@@ -1,0 +1,21 @@
+name: michelin
+on: workflow_dispatch
+
+jobs:
+  michelin:
+    name: "michelin"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: "Check out the repository to the runner"
+      uses: actions/checkout@v4
+
+    - name: "Retrieve data"
+      run: |
+        python scripts/michelin.py
+
+    - name: "Upload data"
+      uses: actions/upload-artifact@v4
+      with:
+        name: michelin
+        path: ${{ github.workspace }}/output/*.csv
