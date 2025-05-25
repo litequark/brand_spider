@@ -19,13 +19,17 @@ def save_store_info_to_csv(fields: list, store_dict: dict, file_path: str) -> No
 
 
 def parse_div_store_info(city: str, district: str, store_element, store_dict: dict) -> None:
+    div_store_type = store_element.find_element(By.CSS_SELECTOR, 'div.sl_pop div.square')
+    # 门店类型通过.text无法获取，得到的是空字符串。（？？？）
+    # 通过 JavaScript 获取 textContent（不受 CSS 影响）
+    str_store_type = driver.execute_script("return arguments[0].textContent;", div_store_type).strip()
     store_dict.update({"省": str(),
                        "Province": str(),
                        "市区辅助": city,
                        "City/Area": get_en_city(city),
                        "区": district,
                        "店名": store_element.find_element(By.CSS_SELECTOR, 'div.shop_left div.shop_name').text,
-                       "类型": store_element.find_element(By.CSS_SELECTOR, 'div.sl_pop div.square').text,
+                       "类型": str_store_type,
                        "地址": store_element.find_element(By.CSS_SELECTOR,
                                                           'div.shop_left div.shop_address span').text,
                        "电话": store_element.find_element(By.CSS_SELECTOR,
