@@ -21,7 +21,7 @@ jobs:
 
     - name: "Retrieve data"
       run: |
-        python scripts/byd.py
+        python byd.py
 
     - name: "Upload data"
       uses: actions/upload-artifact@v4
@@ -39,7 +39,7 @@ jobs:
 
     - name: "Retrieve data"
       run: |
-        python scripts/audi.py
+        python audi.py
 
     - name: "Upload data"
       uses: actions/upload-artifact@v4
@@ -57,7 +57,7 @@ jobs:
 
     - name: "Retrieve data"
       run: |
-        python scripts/benz.py
+        python benz.py
 
     - name: "Upload data"
       uses: actions/upload-artifact@v4
@@ -97,7 +97,7 @@ jobs:
 
       - name: "Retrieve data"
         run: |
-          python scripts/bridgestone.py
+          python bridgestone.py
 
       - name: "Upload data"
         uses: actions/upload-artifact@v4
@@ -115,7 +115,7 @@ jobs:
 
       - name: "Retrieve data"
         run: |
-          python scripts/michelin.py
+          python michelin.py
 
       - name: "Upload data"
         uses: actions/upload-artifact@v4
