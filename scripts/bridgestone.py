@@ -37,6 +37,112 @@ def parse_div_store_info(city: str, district: str, store_element, store_dict: di
                        "备注": str()})
 
 
+def process_btn_alphabet_group(p_btn_alphabet_group, p_btn_city_input_box) -> int:
+    p_store_count: int = 0
+    wait.until(lambda _: p_btn_alphabet_group.is_displayed())
+    p_btn_alphabet_group.click()
+    # 获取当前城市首字母分组的container
+    p_container_alphabet_group = p_btn_city_input_box.find_element(by=By.CSS_SELECTOR,
+                                                               value='div.city_list div.city_container.cc')
+    wait.until(lambda _: p_container_alphabet_group.is_displayed())
+
+    '''获取分组内所有行（一行城市为一个wrapper，内含城市和对应的区划列表，平级）'''
+    p_wrappers_cities: list = p_container_alphabet_group.find_elements(By.CSS_SELECTOR, 'ul.cities-wrapper')
+    for p_wrapper_cities in p_wrappers_cities:
+        p_store_count += process_wrapper_cities(p_wrapper_cities, p_btn_alphabet_group)
+    return p_store_count
+
+
+def process_wrapper_cities(p_wrapper_cities, p_btn_alphabet_group) -> int:
+    p_store_count: int = 0
+    wait.until(lambda _: p_wrapper_cities.is_displayed())
+    '''获取行内所有的城市按钮'''
+    p_btn_cities: list = p_wrapper_cities.find_elements(by=By.CSS_SELECTOR, value='li')
+
+    '''依次处理行内所有的城市'''
+    for p_btn_city in p_btn_cities:
+        p_store_count += process_btn_city(p_btn_city, p_wrapper_cities, p_btn_alphabet_group)
+    return p_store_count
+
+
+def process_btn_city(p_btn_city, p_wrapper_cities, p_btn_alphabet_group) -> int:
+    p_store_count: int = 0
+    wait.until(lambda _: p_btn_city.is_displayed())
+    p_str_city: str = p_btn_city.get_attribute("title")
+    p_btn_city.click()
+
+    # 全部区域 #city_span > div.city_list > div.city_container.cc > ul:nth-child(13) > div.district-content.cr > div:nth-child(1) > span
+    '''获取城市下辖的所有区划按钮'''
+    p_btn_districts: list = p_wrapper_cities.find_elements(by=By.CSS_SELECTOR,
+                                                       value='div.district-content.cr div span')
+
+    '''依次处理城市下辖的所有区划'''
+    for p_btn_district in p_btn_districts:
+        wait.until(lambda _: p_btn_district.is_displayed())
+        if p_btn_district.text == '全部区域':
+            continue
+        p_store_count += process_btn_district(p_btn_district, p_btn_alphabet_group, p_str_city)
+    return p_store_count
+
+
+def process_btn_district(p_btn_district, p_btn_alphabet_group, p_str_city: str) -> int:
+    """此层级中会出现页面重载（因为点击了查询按钮）"""
+    p_store_count: int = 0
+    wait.until(lambda _: p_btn_district.is_displayed())
+    p_str_district: str = p_btn_district.get_attribute("title")
+    p_btn_district.click()
+    '''获取“查询”按钮'''
+    p_btn_search = btn_city_input_box.find_element(by=By.ID, value="search_btn_mylo2")
+    wait.until(lambda _: p_btn_search.is_displayed())
+    p_btn_search.click()
+
+    '''等待查询完毕'''
+    p_edit_field = driver.find_element(By.ID, value='edit-actions--2')
+    wait.until(lambda _: p_edit_field.is_enabled())
+
+    '''获取门店总数'''
+    p_div_district_total_stores = driver.find_element(by=By.CSS_SELECTOR, value="#agency_length2")
+    wait.until(lambda _: p_div_district_total_stores.is_displayed())
+    p_str_district_total_stores: str = p_div_district_total_stores.text
+    # 从字符串中提取数字
+    p_match_store_count = re.search(r"(\d+)",
+                                  p_str_district_total_stores) if p_str_district_total_stores else None
+    p_int_district_total_stores: int = int(p_match_store_count.group()) if p_match_store_count else 0
+
+    '''获取门店列表'''
+    p_div_district_stores: list = driver.find_elements(By.CSS_SELECTOR, '#agencys-region2 div.store_list')
+    # 加入实际爬取门店的计数
+    p_store_count += len(p_div_district_stores)
+
+    '''依次对列表里的店铺提取属性'''
+    for p_div_district_store in p_div_district_stores:
+        process_div_district_store(p_div_district_store, p_str_city, p_str_district)
+
+    driver.find_element(by=By.ID, value='city_span').click()
+    p_btn_alphabet_group.click()
+    sleep(0.5)
+
+    return p_store_count
+
+
+def process_div_district_store(p_div_district_store, p_str_city: str, p_str_district: str) -> None:
+    p_store_info: dict = STORE.copy()
+    if p_div_district_store.is_displayed():
+        parse_div_store_info(p_str_city, p_str_district, p_div_district_store, p_store_info)
+    else:
+        '''表示该元素处于下一页，需要翻页'''
+        p_paginator_next = driver.find_element(By.CSS_SELECTOR,
+                                               '#agency_list2 div.page_bottom2 span.next2')
+        wait.until(lambda _: p_paginator_next.is_displayed())
+        p_paginator_next.click()
+        wait.until(lambda _: p_div_district_store.is_displayed())
+        parse_div_store_info(p_str_city, p_str_district, p_div_district_store, p_store_info)
+
+    print(p_store_info)
+    '''写入CSV'''
+    save_store_info_to_csv(RESULT_FIELDS, p_store_info, OUTPUT_PATH)
+
+
 def get_store_type(type_map: dict, str_type: str) -> str:
     return type_map[str] if (str in type_map) else str_type
 
