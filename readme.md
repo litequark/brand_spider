@@ -2,7 +2,7 @@
 
 ## 需要爬取的企业
 
-制作爬虫前请先[认领企业](http://zhoukeming.mikecrm.com/zVxC0HQ)，访问密码为`yuyue`
+制作爬虫前请先[认领企业](http://zhoukeming.mikecrm.com/zVxC0HQ)
 
 * 米其林
 * 马牌
