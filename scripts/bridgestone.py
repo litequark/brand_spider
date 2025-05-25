@@ -18,23 +18,24 @@ def save_store_info_to_csv(fields: list, store_dict: dict, file_path: str) -> No
         d_list_writer.writerow(store_dict)
 
 
-def parse_div_store_info(city:str, district:str, store_element, store_dict: dict) -> None:
+def parse_div_store_info(city: str, district: str, store_element, store_dict: dict) -> None:
     store_dict.update({"省": str(),
-                          "Province": str(),
-                          "市区辅助": city,
-                          "City/Area": get_en_city(city),
-                          "区": district,
-                          "店名": store_element.find_element(By.CSS_SELECTOR, 'div.shop_left div.shop_name').text,
-                          "类型": store_element.find_element(By.CSS_SELECTOR, 'div.sl_pop div.square').text,
-                          "地址": store_element.find_element(By.CSS_SELECTOR,
-                                                                  'div.shop_left div.shop_address span').text,
-                          "电话": store_element.find_element(By.CSS_SELECTOR,
-                                                                  'div.shop_phone a:nth-child(2) span').text,
+                       "Province": str(),
+                       "市区辅助": city,
+                       "City/Area": get_en_city(city),
+                       "区": district,
+                       "店名": store_element.find_element(By.CSS_SELECTOR, 'div.shop_left div.shop_name').text,
+                       "类型": store_element.find_element(By.CSS_SELECTOR, 'div.sl_pop div.square').text,
+                       "地址": store_element.find_element(By.CSS_SELECTOR,
+                                                          'div.shop_left div.shop_address span').text,
+                       "电话": store_element.find_element(By.CSS_SELECTOR,
+                                                          'div.shop_phone a:nth-child(2) span').text,
                        "备注": str()})
 
 
 def get_store_type(type_map: dict, str_type: str) -> str:
     return type_map[str] if (str in type_map) else str_type
+
 
 HOME_PAGE = "https://www.bridgestone.com.cn/interactioncenter/search_shop.html"
 
@@ -54,7 +55,7 @@ STORE: dict = {
 }
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)#进入子目录
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # 进入子目录
 OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/bridgestone.csv")
 
 TYPE_MAP: dict = dict()
@@ -70,18 +71,17 @@ chrome_options = Options()
 # 禁用地理位置权限
 chrome_options.add_argument("--disable-geolocation")
 chrome_options.add_argument("--disable-infobars")  # 可选：禁用信息栏提示
-chrome_options.add_argument("--no-sandbox")          # 禁用沙盒（Linux必加）
+chrome_options.add_argument("--no-sandbox")  # 禁用沙盒（Linux必加）
 chrome_options.add_argument("--disable-dev-shm-usage")  # 避免内存不足
 chrome_options.add_argument("--window-size=1920,1080")  # 设置窗口大小（避免响应式布局问题）
 chrome_options.add_argument("--headless=new")  # 启用新版无头模式
-chrome_options.add_argument("--disable-gpu")   # 可选：禁用GPU加速（旧版需启用）
+chrome_options.add_argument("--disable-gpu")  # 可选：禁用GPU加速（旧版需启用）
 
 # 设置默认拒绝所有网站的定位请求
 chrome_options.add_experimental_option("prefs", {
     "profile.default_content_setting_values.geolocation": 2,  # 2=拒绝, 1=允许, 0=询问
     "profile.default_content_setting_values.notifications": 2,  # 可选：禁用通知
 })
-
 
 driver = webdriver.Chrome(options=chrome_options)
 driver.get(HOME_PAGE)
@@ -127,7 +127,8 @@ try:
         btn_alphabet_group.click()
 
         # 获取当前城市首字母分组的container
-        container_alphabet_group = btn_city_input_box.find_element(by=By.CSS_SELECTOR, value='div.city_list div.city_container.cc')
+        container_alphabet_group = btn_city_input_box.find_element(by=By.CSS_SELECTOR,
+                                                                   value='div.city_list div.city_container.cc')
         wait.until(lambda _: container_alphabet_group.is_displayed())
 
         '''获取分组内所有行（一行城市为一个wrapper，内含城市和对应的区划列表，平级）'''
@@ -145,7 +146,8 @@ try:
 
                 # 全部区域 #city_span > div.city_list > div.city_container.cc > ul:nth-child(13) > div.district-content.cr > div:nth-child(1) > span
                 '''获取城市下辖的所有区划按钮'''
-                btn_districts: list = wrapper_cities.find_elements(by=By.CSS_SELECTOR, value='div.district-content.cr div span')
+                btn_districts: list = wrapper_cities.find_elements(by=By.CSS_SELECTOR,
+                                                                   value='div.district-content.cr div span')
 
                 '''依次处理城市下辖的所有区划'''
                 for btn_district in btn_districts:
@@ -168,7 +170,8 @@ try:
                     wait.until(lambda _: div_district_total_stores.is_displayed())
                     str_district_total_stores: str = div_district_total_stores.text
                     # 从字符串中提取数字
-                    match_store_count = re.search(r"(\d+)", str_district_total_stores) if str_district_total_stores else None
+                    match_store_count = re.search(r"(\d+)",
+                                                  str_district_total_stores) if str_district_total_stores else None
                     int_district_total_stores: int = int(match_store_count.group()) if match_store_count else 0
                     # 加入网页声称门店的计数
                     claimed_store_count += int_district_total_stores
@@ -185,7 +188,8 @@ try:
                             parse_div_store_info(str_city, str_district, div_district_store, store_info)
                         else:
                             '''表示该元素处于下一页，需要翻页'''
-                            paginator_next = driver.find_element(By.CSS_SELECTOR, '#agency_list2 div.page_bottom2 span.next2')
+                            paginator_next = driver.find_element(By.CSS_SELECTOR,
+                                                                 '#agency_list2 div.page_bottom2 span.next2')
                             wait.until(lambda _: paginator_next.is_displayed())
                             paginator_next.click()
                             wait.until(lambda _: div_district_store.is_displayed())
