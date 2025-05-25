@@ -1,0 +1,21 @@
+name: continental
+on: workflow_dispatch
+
+jobs:
+  continental:
+    name: "continental"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: "Check out the repository to the runner"
+      uses: actions/checkout@v4
+
+    - name: "Retrieve data"
+      run: |
+        python scripts/continental.py
+
+    - name: "Upload data"
+      uses: actions/upload-artifact@v4
+      with: 
+        name: continental
+        path: ${{ github.workspace }}/output/*.csv
