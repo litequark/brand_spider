@@ -28,3 +28,12 @@ jobs:
 
   continental:
     uses: ./.github/workflows/continental.yml
+
+  tesla:
+    uses: ./.github/workflows/tesla.yml
+
+  maserati:
+    uses: ./.github/workflows/maserati.yml
+
+  porsche:
+    uses: ./.github/workflows/porsche.yml
