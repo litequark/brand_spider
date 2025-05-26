@@ -12,6 +12,7 @@ runs:
     - name: "Retrieve data"
       run: |
         python ${{ github.workspace }}/scripts/${{ inputs.script-name }}.py
+      shell: bash
 
     - name: "Upload data"
       uses: actions/upload-artifact@v4
