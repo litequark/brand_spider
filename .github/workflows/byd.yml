@@ -1,7 +1,7 @@
+name: "byd"
+
 env:
   brand: "byd"
-
-name: ${{ env.brand }}
 
 on:
   workflow_dispatch:
