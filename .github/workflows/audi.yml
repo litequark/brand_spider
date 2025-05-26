@@ -1,7 +1,8 @@
-name: "Run Audi"
+name: "audi"
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   audi:
@@ -9,19 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: .
+        working-directory: ${{ github.workspace }}
 
     steps:
     - name: Check out the repository to the runner
       uses: actions/checkout@v4
-
-    - name: "Retrieve data to CSV"
-      run: |
-        python scripts/audi.py
-
-    - name: "Upload CSV"
-      uses: actions/upload-artifact@v4
-      with: 
-        name: csv-output
-        path: output/audi.csv
-    
+    - id: crawl
+      uses: ./.github/workflows/retrieve-upload
+      with:
+        script-name: "audi"
