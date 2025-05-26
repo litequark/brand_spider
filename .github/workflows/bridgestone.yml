@@ -1,15 +1,19 @@
-name: "Run Bridgestone"
+name: "bridgestone"
+
+env:
+  brand: "bridgestone"
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
-  bridgestone:
-    name: "bridgestone"
+  main:
+    name: main
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: .
+        working-directory: ${{ github.workspace }}
 
     steps:
     - name: Check out the repository to the runner
@@ -18,7 +22,6 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v5.6.0
       with:
-        # Version range or exact version of Python or PyPy to use, using SemVer's version range syntax. Reads from .python-version if unset.
         python-version: 3.13
 
     - name: Install Python dependencies
@@ -34,12 +37,7 @@ jobs:
         # Install the compatible version of ChromeDriver with the installed Google Chrome/Chromium.
         install-chromedriver: true
 
-    - name: "Retrieve data to CSV"
-      run: |
-        python scripts/bridgestone.py
-
-    - name: "Upload CSV"
-      uses: actions/upload-artifact@v4
+    - name: "Retrieve & upload data"
+      uses: ./.github/workflows/retrieve-upload
       with:
-        name: bridgestone
-        path: output/bridgestone.csv
+        script-name: ${{ env.brand }}

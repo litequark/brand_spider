@@ -1,0 +1,30 @@
+name: "Retrieve & upload data"
+description: "Run python spider script, crawl online data, and upload artifacts."
+inputs:
+  script-name:
+    description: "Script name (without extension), e.g.: benz"
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: "Retrieve data (Linux)"
+      if: runner.os == 'Linux'
+      run: |
+        python ${{ github.workspace }}/scripts/${{ inputs.script-name }}.py
+      shell: bash
+
+    - name: "Retrieve data (Windows)"
+      env:
+        windows-script-path: "${{ github.workspace }}\\scripts\\${{ inputs.script-name }}.py"
+      if: runner.os == 'Windows'
+      run: |
+        python ${{ env.windows-script-path }}
+      shell: powershell
+
+    - name: "Upload data"
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.script-name }}
+        path: ${{ github.workspace }}/output/*.csv
