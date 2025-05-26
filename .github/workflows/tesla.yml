@@ -9,7 +9,7 @@ on:
 
 jobs:
   main:
-    name: ${{ env.brand }}
+    name: main
     runs-on: windows-latest
     defaults:
       run:
