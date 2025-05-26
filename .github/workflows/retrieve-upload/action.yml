@@ -1,0 +1,20 @@
+name: "Retrieve & upload data"
+description: "Run python spider script, crawl online data, and upload artifacts."
+inputs:
+  script-name:
+    description: "Script name (without extension), e.g.: benz"
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: "Retrieve data"
+      run: |
+        python ${{ github.workspace }}/scripts/${{ inputs.script-name }}.py
+
+    - name: "Upload data"
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.script-name }}
+        path: ${{ github.workspace }}/output/*.csv
