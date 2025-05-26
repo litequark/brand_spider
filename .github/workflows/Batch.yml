@@ -12,128 +12,19 @@ defaults:
 
 jobs:
   byd:
-    name: "byd"
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: "Check out the repository to the runner"
-      uses: actions/checkout@v4
-
-    - name: "Retrieve data"
-      run: |
-        python byd.py
-
-    - name: "Upload data"
-      uses: actions/upload-artifact@v4
-      with: 
-        name: byd
-        path: ${{ github.workspace }}/output/*.csv
+    uses: ./.github/workflows/byd.yml
   
   audi:
-    name: "audi"
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/audi.yml
 
-    steps:
-    - name: "Check out the repository to the runner"
-      uses: actions/checkout@v4
-
-    - name: "Retrieve data"
-      run: |
-        python audi.py
-
-    - name: "Upload data"
-      uses: actions/upload-artifact@v4
-      with: 
-        name: audi
-        path: ${{ github.workspace }}/output/*.csv
-    
   benz:
-    name: "benz"
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: "Check out the repository to the runner"
-      uses: actions/checkout@v4
-
-    - name: "Retrieve data"
-      run: |
-        python benz.py
-
-    - name: "Upload data"
-      uses: actions/upload-artifact@v4
-      with:
-        name: benz
-        path: ${{ github.workspace }}/output/*.csv
+    uses: ./.github/workflows/benz.yml
 
   bridgestone:
-    name: "bridgestone"
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: "Check out the repository to the runner"
-        uses: actions/checkout@v4
-
-      - name: "Setup Python"
-        uses: actions/setup-python@v5.6.0
-        with:
-          # Version range or exact version of Python or PyPy to use, using SemVer's version range syntax. Reads from .python-version if unset.
-          python-version: 3.13
-
-      - name: "Install Python dependencies"
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r ${{ github.workspace }}/requirements.txt
-
-      - name: "Setup Chrome & ChromeDriver"
-        uses: browser-actions/setup-chrome@v1.7.3
-        with:
-          # The Google Chrome/Chromium version to install and use.
-          chrome-version: 136
-          # Install the compatible version of ChromeDriver with the installed Google Chrome/Chromium.
-          install-chromedriver: true
-
-      - name: "Retrieve data"
-        run: |
-          python bridgestone.py
-
-      - name: "Upload data"
-        uses: actions/upload-artifact@v4
-        with:
-          name: bridgestone
-          path: ${{ github.workspace }}/output/*.csv
+    uses: ./.github/workflows/bridgestone.yml
 
   michelin:
-    name: "michelin"
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: "Check out the repository to the runner"
-        uses: actions/checkout@v4
-
-      - name: "Retrieve data"
-        run: |
-          python michelin.py
-
-      - name: "Upload data"
-        uses: actions/upload-artifact@v4
-        with:
-          name: michelin
-          path: ${{ github.workspace }}/output/*.csv
+    uses: ./.github/workflows/michelin.yml
 
   continental:
-    name: "continental"
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: "Check out the repository to the runner"
-        uses: actions/checkout@v4
-
-      - name: "Retrieve data"
-        run: |
-          python continental.py
-
-      - name: "Upload data"
-        uses: actions/upload-artifact@v4
-        with:
-          name: continental
-          path: ${{ github.workspace }}/output/*.csv
+    uses: ./.github/workflows/continental.yml
