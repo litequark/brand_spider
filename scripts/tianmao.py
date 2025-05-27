@@ -278,5 +278,6 @@ class TmallStoreCrawlerPro:
 
 if __name__ == "__main__":
     crawler = TmallStoreCrawlerPro()
+    crawler.run()
     print("\n--- 爬取完成 ---")
     print(f"CSV文件已保存至：{OUTPUT_PATH}")
