@@ -2,7 +2,6 @@ import os
 import csv
 import requests
 import json
-from pypinyin import lazy_pinyin, Style
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)#进入子目录
@@ -22,12 +21,6 @@ params = {
 CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
               "店名", "类型", "地址", "电话", "备注"]
 
-
-def chinese_to_pinyin(chinese_str):
-
-    if not chinese_str:
-        return ""
-    return ''.join(lazy_pinyin(chinese_str, style=Style.NORMAL)).title()
 
 
 def fetch_api_data():
@@ -54,12 +47,7 @@ def process_features(raw_data):
 
 
         province_cn = prop.get("main_CountyCountrySub-Division", "")
-        province_py = chinese_to_pinyin(province_cn)
-
-
         city_cn = prop.get("main_CityName", "")
-        city_py = chinese_to_pinyin(city_cn)
-
         record = [
             "法拉利",  # 品牌
             province_cn,  # 省（中文）
