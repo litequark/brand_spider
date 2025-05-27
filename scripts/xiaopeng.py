@@ -6,7 +6,7 @@ import random
 import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # 进入父目录（project）
-OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/xiaoPeng.csv")
+OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/xiaopeng.csv")
 url = "https://www.xiaopeng.com/api/store/queryAll"
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0",

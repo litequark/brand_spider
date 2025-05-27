@@ -37,3 +37,27 @@ jobs:
 
   porsche:
     uses: ./.github/workflows/porsche.yml
+
+  lixiang:
+    uses: ./.github/workflows/lixiang.yml
+
+  huawei:
+    uses: ./.github/workflows/huawei.yml
+
+  goodyear:
+    uses: ./.github/workflows/goodyear.yml
+
+  leapmotor:
+    uses: ./.github/workflows/leapmotor.yml
+
+  volvo:
+    uses: ./.github/workflows/volvo.yml
+
+  xiaopeng:
+    uses: ./.github/workflows/xiaopeng.yml
+
+  bwm:
+    uses: ./.github/workflows/bwm.yml
+
+  ferrari:
+    uses: ./.github/workflows/ferrari.yml
