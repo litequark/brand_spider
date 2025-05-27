@@ -10,7 +10,8 @@ BASE_URL = "https://store-center.leapmotor.cn/leap-store/storeDrainage"
 CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
               "店名", "类型", "地址", "电话", "备注"]
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
-CSV_PATH = os.path.join(OUTPUT_DIR, "leapmotor.csv")
+PROJECT_ROOT = os.path.dirname(OUTPUT_DIR)
+CSV_PATH = os.path.join(PROJECT_ROOT, "leapmotor.csv")
 
 
 def get_province_cities() -> List[Dict]:

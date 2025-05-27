@@ -10,12 +10,12 @@ from typing import Dict, List
 import chardet
 import gzip
 
-# 路径配置
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "output")
 OUTPUT_PATH = os.path.join(OUTPUT_DIR, "goodyear.csv")
 global totalCount
+
 # API配置
 LOCATION_API = "https://www.goodyear.com.cn/wp-content/themes/goodyearforward/js/store/location-filter.json"
 STORE_API = "https://www.goodyear.com.cn/wp-admin/admin-ajax.php"
@@ -119,7 +119,7 @@ def save_data(data: List[Dict]):
 
 
 def fetch_store_page(province: str, page: int) -> int:
-    global totalCount
+
     total = 0
     try:
         with requests.Session() as session:
@@ -166,7 +166,7 @@ def fetch_store_page(province: str, page: int) -> int:
                         if stores:
                             save_data(stores)
                             print(f"成功保存 {len(stores)} 条记录")
-                            totalCount+=len(stores)
+
                 except json.JSONDecodeError:
                     print("响应数据不是有效的JSON格式")
                     print("原始响应内容:", content[:500])
@@ -203,4 +203,4 @@ def main():
 
 
 main()
-print(f"所有门店数据抓取完成，总计门店数量：{totalCount}")
+print(f"所有门店数据抓取完成")
