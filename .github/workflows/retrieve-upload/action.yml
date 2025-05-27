@@ -15,19 +15,10 @@ runs:
         pip install -r requirements.txt
       shell: bash
 
-    - name: "Retrieve data (Linux)"
-      if: runner.os == 'Linux'
+    - name: "Retrieve data"
       run: |
-        python ${{ github.workspace }}/scripts/${{ inputs.script-name }}.py
+        python '${{ github.workspace }}/scripts/${{ inputs.script-name }}.py'
       shell: bash
-
-    - name: "Retrieve data (Windows)"
-      env:
-        windows-script-path: "${{ github.workspace }}\\scripts\\${{ inputs.script-name }}.py"
-      if: runner.os == 'Windows'
-      run: |
-        python ${{ env.windows-script-path }}
-      shell: powershell
 
     - name: "Upload data"
       uses: actions/upload-artifact@v4
