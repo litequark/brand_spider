@@ -5,7 +5,7 @@ import csv
 import random
 import time
 import requests
-from bs4 import BeautifulSoup
+import bs4
 from typing import Dict, List
 import chardet
 import gzip
@@ -56,7 +56,7 @@ def fetch_provinces() -> Dict:
 
 
 def parse_store(html: str) -> List[Dict]:
-    soup = BeautifulSoup(html, 'html.parser')
+    soup = bs4.BeautifulSoup(html, 'html.parser')
     stores = []
 
     for article in soup.find_all('article', class_='store-card'):
