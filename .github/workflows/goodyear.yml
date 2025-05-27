@@ -19,11 +19,6 @@ jobs:
     - name: Check out the repository to the runner
       uses: actions/checkout@v4
 
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
     - name: "Retrieve & upload data"
       uses: ./.github/workflows/retrieve-upload
       with:
