@@ -28,3 +28,4 @@ runs:
       with:
         name: ${{ inputs.script-name }}
         path: ${{ github.workspace }}/output/*.csv
+        if-no-files-found: 'error'
