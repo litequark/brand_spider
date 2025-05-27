@@ -14,7 +14,7 @@ from selenium.webdriver.chrome.options import Options
 CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
               "店名", "类型", "地址", "电话", "备注"]
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_PATH = os.path.join(SCRIPT_DIR, "output/TianMao.csv")
+OUTPUT_PATH = os.path.join(SCRIPT_DIR, "output/tianmao.csv")
 
 
 class TmallStoreCrawlerPro:
