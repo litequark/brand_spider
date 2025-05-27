@@ -61,3 +61,6 @@ jobs:
 
   ferrari:
     uses: ./.github/workflows/ferrari.yml
+
+  tianmao:
+    uses: ./.github/workflows/tianmao.yml
