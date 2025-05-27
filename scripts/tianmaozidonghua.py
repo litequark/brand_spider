@@ -9,14 +9,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
-
-# 常量定义
 CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
               "店名", "类型", "地址", "电话", "备注"]
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_PATH = os.path.join(SCRIPT_DIR, "output/tianmao.csv")
-
-
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)#进入子目录
+OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/tianmao.csv")
 class TmallStoreCrawlerPro:
     def __init__(self):
         # 创建输出目录
@@ -30,15 +27,13 @@ class TmallStoreCrawlerPro:
 
         # 浏览器配置
         chrome_options = Options()
-        chrome_options.add_argument(
-            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36")
         self.driver = webdriver.Chrome(options=chrome_options)
         self.driver.maximize_window()
         self.wait = WebDriverWait(self.driver, 20)
         print("WebDriver 初始化完成。")
 
     def _write_to_csv(self, city_name, store_data):
-        """将单条数据写入CSV文件"""
+
         row = [
             "天猫养车",  # 品牌
             "",  # 省
@@ -271,17 +266,10 @@ class TmallStoreCrawlerPro:
 
         self.driver.quit()
 
-        # 保存JSON文件
-        json_output = json.dumps(final_data_all_cities, ensure_ascii=False, indent=2)
-        with open(os.path.join(SCRIPT_DIR, "output/TianMao.json"), "w", encoding="utf-8") as f:
-            f.write(json_output)
 
-        return json_output
 
 
 if __name__ == "__main__":
     crawler = TmallStoreCrawlerPro()
-    results_json = crawler.run()
     print("\n--- 爬取完成 ---")
     print(f"CSV文件已保存至：{OUTPUT_PATH}")
-    print(f"JSON文件已保存至：{os.path.join(SCRIPT_DIR, 'output/TianMao.json')}")
