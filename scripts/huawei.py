@@ -19,7 +19,7 @@ CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
               "店名", "类型", "地址", "电话", "备注"]
 API_URL = "https://cbg.huawei.com/isrp/lms/store-info/car-store-list/query"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_PATH = os.path.join(SCRIPT_DIR, "output/huaWei.csv")
+OUTPUT_PATH = os.path.join(SCRIPT_DIR, "output/huawei.csv")
 
 
 def fetch_stores(brand_code):
