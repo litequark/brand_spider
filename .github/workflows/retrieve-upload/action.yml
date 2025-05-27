@@ -1,5 +1,5 @@
-name: "Retrieve & upload data"
-description: "Run python spider script, crawl online data, and upload artifacts."
+name: "Retrieve & upload data (with dependencies solved)"
+description: "Install Python dependencies, run python spider script and upload artifacts."
 inputs:
   script-name:
     description: "Script name (without extension), e.g.: benz"
