@@ -2,7 +2,7 @@ import os
 import csv
 import requests
 import json
-
+import util.location_translator as ltr
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)#进入子目录
 OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/ferrari.csv")
@@ -51,9 +51,9 @@ def process_features(raw_data):
         record = [
             "法拉利",  # 品牌
             province_cn,  # 省（中文）
-            "",
+            ltr.get_en_province(province_cn),
             city_cn,  # 市区辅助（市中文）
-            "",
+            ltr.get_en_city(city_cn),
             prop.get("main_CitySub-DivisionName", ""),
             prop.get("Name", ""),
             "展厅" if "showroom" in prop.get("DealerType", "") else "服务中心",  # 类型
