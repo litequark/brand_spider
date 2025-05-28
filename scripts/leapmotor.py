@@ -76,14 +76,14 @@ def process_store(store: Dict) -> Dict:
 
 
 def main():
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
 
     provinces = get_province_cities()
     print(f"获取到{len(provinces)}条省市数据")
 
     total_count = 0
 
-    with open(CSV_PATH, 'w', newline='', encoding='utf-8-sig') as csvfile:
+    with open(OUTPUT_PATH, 'w', newline='', encoding='utf-8-sig') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=CSV_HEADER)
         writer.writeheader()
 
