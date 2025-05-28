@@ -11,7 +11,13 @@ runs:
   steps:
     - name: "Satisfy requirements.txt"
       run: |
+        echo '[BRAND_SPIDER] Upgrading pip...'
         python -m pip install --upgrade pip
+        echo '[BRAND_SPIDER] Installing pipreqs...'
+        pip install pipreqs
+        echo '[BRAND_SPIDER] Generating requirements.txt...'
+        pipreqs . --force
+        echo '[BRAND_SPIDER] Satisfying requirements.txt...'
         pip install -r requirements.txt
       shell: bash
 
