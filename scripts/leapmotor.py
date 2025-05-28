@@ -1,7 +1,6 @@
 import requests
 import csv
 import os
-import json
 import time
 import random
 from typing import List, Dict
@@ -76,7 +75,7 @@ def process_store(store: Dict) -> Dict:
 
 
 def main():
-    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
 
     provinces = get_province_cities()
     print(f"获取到{len(provinces)}条省市数据")
