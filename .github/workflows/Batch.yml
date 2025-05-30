@@ -11,8 +11,9 @@ defaults:
     working-directory: ./scripts
 
 jobs:
-  byd:
-    uses: ./.github/workflows/byd.yml
+  #byd:
+  #  uses: ./.github/workflows/byd.yml
+  #按照经验来看，byd目前是完成度最高的脚本，之后再爬，debug阶段先放一下
   
   audi:
     uses: ./.github/workflows/audi.yml
