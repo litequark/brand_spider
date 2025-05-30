@@ -3,10 +3,12 @@ import requests
 import json
 import csv
 import time
-from time import sleep
+# from time import sleep # Replaced with bs_sleep
 from urllib.parse import urljoin
 from requests.adapters import HTTPAdapter
 from util.location_translator import get_en_province, get_en_city
+from util.bs_sleep import sleep_with_random # Import sleep_with_random
+import random # Import random for UA selection
 import re # For parsing endPage
 
 # 路径配置
@@ -22,9 +24,18 @@ CSV_HEADER = ["品牌", "省", "Province", "市", "City", "区", "店名",
 # API配置
 API_URL = "https://www.hankooktire.com/wsvc/api/find-store.getStoreList.do"
 
-# 请求头配置 (根据需要调整)
+# User-Agent Pool
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+]
+
+# 请求头配置 (User-Agent will be set dynamically)
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+    # "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36", # Removed static UA
     "Content-Type": "application/json;charset=UTF-8",
     "Accept": "application/json, text/plain, */*",
     "Origin": "https://www.hankooktire.com",
@@ -68,7 +79,11 @@ def fetch_page_data(session, payload):
         # 观察到用户提供的curl命令通常将json作为data参数的值，而不是json参数
         # 实际测试发现，直接用json=payload可以工作，但服务器返回的Content-Type是text/html，内容是JSON
         # 确保请求头中的Content-Type是 application/json
-        response = session.post(API_URL, headers=HEADERS, json=payload, timeout=20)
+        
+        current_headers = HEADERS.copy()
+        current_headers["User-Agent"] = random.choice(USER_AGENTS) # Select a random User-Agent
+        
+        response = session.post(API_URL, headers=current_headers, json=payload, timeout=30) # Increased timeout slightly
         response.raise_for_status() # Will raise an HTTPError for bad responses (4XX or 5XX)
         # 有些服务器即使返回JSON，Content-Type也可能是text/html，所以直接尝试json解析
         return response.json()
@@ -181,7 +196,8 @@ def main():
             current_payload['page'] = str(page)
             
             response_data = fetch_page_data(session, current_payload)
-            sleep(random.uniform(1, 3)) # Respectful delay
+            # sleep(random.uniform(1, 3)) # Respectful delay - replaced with sleep_with_random
+            sleep_with_random(interval=2, rand_max=3) # Sleep for 2 to 5 seconds
 
             if not response_data or response_data.get('resultCode') != '0000':
                 print(f"获取第 {page} 页数据失败或API返回错误。")
