@@ -70,3 +70,6 @@ jobs:
 
   hankooktire:
     uses: ./.github/workflows/hankooktire.yml
+
+  landrover:
+    uses: ./.github/workflows/landrover.yml
