@@ -5,6 +5,7 @@ import csv
 from requests.adapters import HTTPAdapter
 from util.location_translator import get_en_province, get_en_city
 from util.bs_sleep import sleep_with_random
+import re
 
 
 # 路径配置
@@ -93,79 +94,214 @@ def fetch_page_data(session, payload):
 
 
 def parse_address_components(address_str):
-    """尝试从地址字符串中解析省和市"""
-    # 示例地址: "上海  上海万荣路1066-1070号 "
-    # "上海  上海奉贤运河北路301号 "
-    # "江苏省 苏州市 张家港市杨舍镇东方明珠城1幢101室"
-    # 这是一个非常基础的解析，可能需要根据实际数据多样性进行调整
-    parts = [p.strip() for p in address_str.split(' ') if p.strip()]
+    """尝试从地址字符串中解析省、市、区"""
+    address_str = address_str.strip()
     province_zh = ""
     city_zh = ""
+    district_zh = ""
 
-    if not parts:
-        return province_zh, city_zh
+    # 常见直辖市列表
+    municipalities = ["北京市", "上海市", "天津市", "重庆市"]
+    municipalities_short = [m[:-1] for m in municipalities]  # 北京, 上海, 天津, 重庆
 
-    # 尝试匹配模式如 "省份 城市 ..." 或 "直辖市 直辖市 ..."
-    if len(parts) >= 2:
-        # 检查第一个部分是否是已知的省份或直辖市
-        # 对于 "上海 上海..." 的情况
-        if parts[0] == parts[1] and (parts[0].endswith('市')):
-            province_zh = parts[0]
-            city_zh = parts[0]
-        elif parts[0].endswith('省'):
-            province_zh = parts[0]
-            city_zh = parts[1] if not parts[1].endswith('区') and not parts[1].endswith('县') else parts[0]  # 粗略判断
-        elif parts[0].endswith('市'):  # 可能是直辖市或地级市
-            province_zh = parts[0]
-            city_zh = parts[0]
-            if len(parts) > 1 and parts[1].endswith('市') and parts[0] != parts[1]:  # 如 "苏州市 常熟市..."
-                city_zh = parts[1]
-        # 如果第一部分不是明显的省/市，但第二部分是市
-        elif len(parts) > 1 and (parts[1].endswith('市') or parts[1].endswith('地区') or parts[1].endswith('自治州')):
-            province_zh = parts[0]  # 假设第一部分是省
-            city_zh = parts[1]
-        else:
-            # 默认规则：如果地址包含'省'，则'省'之前的是省，之后的是市
-            if '省' in address_str:
-                prov_idx = address_str.find('省')
-                province_zh = address_str[:prov_idx + 1].strip()
-                remaining_after_prov = address_str[prov_idx + 1:].strip()
-                if '市' in remaining_after_prov:
-                    city_idx = remaining_after_prov.find('市')
-                    city_zh = remaining_after_prov[:city_idx + 1].strip()
-                elif '地区' in remaining_after_prov:
-                    city_idx = remaining_after_prov.find('地区')
-                    city_zh = remaining_after_prov[:city_idx + 2].strip()
-                elif '自治州' in remaining_after_prov:
-                    city_idx = remaining_after_prov.find('自治州')
-                    city_zh = remaining_after_prov[:city_idx + 3].strip()
-            elif '市' in address_str:  # 对于没有'省'但有'市'的，如北京、上海
-                city_idx = address_str.find('市')
-                # 尝试将第一个'市'作为省和市（适用于直辖市）
-                potential_city = address_str[:city_idx + 1].strip()
-                # 移除空格后判断
-                if ' ' not in potential_city:
-                    province_zh = potential_city
-                    city_zh = potential_city
-                else:  # 如果有空格，如 "上海 上海市..."，取第一个非空部分
-                    province_zh = parts[0]
-                    city_zh = parts[0]
+    for i, muni_short in enumerate(municipalities_short):
+        if address_str.startswith(muni_short):
+            province_zh = municipalities[i]
+            city_zh = municipalities[i] # 直辖市的市名和省名相同
+            remaining_after_muni = address_str[len(muni_short):].strip()
+            if remaining_after_muni.startswith("市") and muni_short + "市" == municipalities[i]:
+                remaining_after_muni = remaining_after_muni[1:].strip()
+            district_match = re.search(r'([^\s]+?(?:区|县|市辖区|自治县))', remaining_after_muni)
+            if district_match:
+                district_zh = district_match.group(1).strip()
+            return province_zh, city_zh, district_zh
 
-    elif len(parts) == 1 and parts[0].endswith('市'):  # 单独一个市，如 "北京市"
-        province_zh = parts[0]
-        city_zh = parts[0]
+    # 模式1: 省/自治区 + 市/盟/州 + 区/县/旗
+    # (云南省)(丽江市)(古城区)
+    # (内蒙古自治区)(乌兰察布市)(集宁区)
+    match = re.match(r'([^省]+省|[^自治区]+自治区)?(?:\s*([^市]+市|[^盟]+盟|[^州]+州|[^地区]+地区))?(?:\s*([^区]+区|[^县]+县|[^市]+市|[^旗]+旗))?(.*)', address_str)
+    if match:
+        g1, g2, g3, _ = match.groups()
 
-    # 清理常见的后缀，如 “市辖区” 等，这部分比较复杂，暂时简化
-    if city_zh.endswith('市辖区'):
-        city_zh = province_zh  # 通常市辖区属于该省的省会或主要城市
+        if g1:
+            province_zh = g1.strip()
+        if g2:
+            city_zh = g2.strip()
+            # 去除市名称中可能包含的省份前缀
+            if province_zh and city_zh.startswith(province_zh):
+                city_zh = city_zh[len(province_zh):].strip()
+            if province_zh and city_zh.startswith(province_zh.replace('省','').replace('自治区','')):
+                 city_zh = city_zh[len(province_zh.replace('省','').replace('自治区','')):].strip()
+            # 确保市名不以“省”结尾，除非它是省名本身（不太可能）
+            if city_zh.endswith('省') and city_zh != province_zh:
+                city_zh = city_zh[:-1] + '市'
 
-    return province_zh, city_zh
+        if g3:
+            district_zh = g3.strip()
+            # 如果区名是市名，清空区名
+            if district_zh == city_zh:
+                district_zh = ''
+            # 如果区名包含市名，例如 “丽江市古城区”，则区应该是“古城区”
+            if city_zh and district_zh.startswith(city_zh) and len(district_zh) > len(city_zh):
+                district_zh = district_zh[len(city_zh):].strip()
 
+        # 针对内蒙古的特殊处理
+        if province_zh == '内蒙古自治区':
+            if city_zh and '省' in city_zh and city_zh != province_zh:
+                city_zh = city_zh.replace('省', '')
+                if not city_zh.endswith('市') and not city_zh.endswith('盟') and not city_zh.endswith('州'):
+                    city_zh += '市'
+            if city_zh == '治区': # 来自用户数据的 “内蒙古自治区 治区”
+                city_zh = ''
+            # 如果区是“乌兰察布省 集宁区”，修正市和区
+            if district_zh and '乌兰察布省' in district_zh:
+                city_zh = '乌兰察布市'
+                district_zh = district_zh.replace('乌兰察布省','').strip()
+            if district_zh and '乌海省' in district_zh:
+                city_zh = '乌海市'
+                district_zh = district_zh.replace('乌海省','').strip()
+                if district_zh == city_zh: district_zh = ''
+
+        # 如果市名是省名（例如“云南省”出现在市字段），清空市或尝试修正
+        if city_zh and (city_zh == province_zh or city_zh == province_zh.replace('省','').replace('自治区','')):
+            # 这种情况通常意味着市信息未正确分离或缺失
+            # 例如地址是 “云南省 古城区”，市应该是 “丽江市” (需要推断)
+            # 暂时清空，依赖后续从店名或其他地方补充
+            city_zh = ''
+
+        # 清理市：确保市名不包含省名，例如 “云南省丽江市” -> “丽江市”
+        if province_zh and city_zh and city_zh.startswith(province_zh.replace('省','').replace('自治区','')):
+            temp_city = city_zh[len(province_zh.replace('省','').replace('自治区','')):].strip()
+            if temp_city.endswith('市') or temp_city.endswith('州') or temp_city.endswith('盟'):
+                city_zh = temp_city
+        elif province_zh and city_zh and city_zh.startswith(province_zh):
+             temp_city = city_zh[len(province_zh):].strip()
+             if temp_city.endswith('市') or temp_city.endswith('州') or temp_city.endswith('盟'):
+                city_zh = temp_city
+
+        # 如果区是空的，但地址的剩余部分看起来像区
+        if not district_zh and _ and _.strip():
+            potential_district_match = re.match(r'([^\s]+?(?:区|县|市|旗|镇|乡|街道))', _.strip())
+            if potential_district_match:
+                district_zh = potential_district_match.group(1).strip()
+                if district_zh == city_zh: district_zh = '' # 避免区和市一样
+
+        return province_zh, city_zh, district_zh
+
+    # 兜底：如果上面的复杂正则没有匹配，尝试简单的按顺序提取
+    # 省/自治区
+    prov_match = re.match(r'([^省]+省|[^自治区]+自治区)', address_str)
+    if prov_match:
+        province_zh = prov_match.group(1).strip()
+        remaining_address = address_str[len(province_zh):].strip()
+
+        # 市/盟/州
+        city_match = re.match(r'([^市]+市|[^盟]+盟|[^州]+州|[^地区]+地区)', remaining_address)
+        if city_match:
+            city_zh = city_match.group(1).strip()
+            remaining_address = remaining_address[len(city_zh):].strip()
+            # 清理市名中的省份
+            if province_zh and city_zh.startswith(province_zh.replace('省','').replace('自治区','')):
+                 city_zh = city_zh[len(province_zh.replace('省','').replace('自治区','')):].strip()
+            if province_zh and city_zh.startswith(province_zh):
+                 city_zh = city_zh[len(province_zh):].strip()
+            if province_zh == '内蒙古自治区' and city_zh == '治区': city_zh = ''
+
+        # 区/县/市/旗
+        dist_match = re.match(r'([^区]+区|[^县]+县|[^市]+市|[^旗]+旗)', remaining_address)
+        if dist_match:
+            district_zh = dist_match.group(1).strip()
+            if district_zh == city_zh: district_zh = ''
+
+    # 如果省是“内蒙古自”，修正为“内蒙古自治区”
+    if province_zh == '内蒙古自':
+        province_zh = '内蒙古自治区'
+    if province_zh == '云南省' and city_zh == '云南省': # 特殊处理云南省市重复
+        city_zh = ''
+
+    # 最后再次确保市名不含省名
+    if province_zh and city_zh and city_zh.startswith(province_zh.replace('省','').replace('自治区','')):
+        city_zh = city_zh[len(province_zh.replace('省','').replace('自治区','')):].strip()
+    if province_zh and city_zh and city_zh.startswith(province_zh):
+        city_zh = city_zh[len(province_zh):].strip()
+
+    # 如果市名为空，但区名看起来像一个市（例如“保山市腾冲县”中的“保山市”）
+    if not city_zh and district_zh and '市' in district_zh and not district_zh.endswith('市'):
+        city_candidate_in_district = re.match(r'([^市]+市)', district_zh)
+        if city_candidate_in_district:
+            city_zh = city_candidate_in_district.group(1)
+            district_zh = district_zh[len(city_zh):].strip()
+
+    return province_zh, city_zh, district_zh
 
 def process_store_item(item):
     """处理单个门店信息"""
     address_full = item.get('ADDR', '').strip()
-    province_zh, city_zh = parse_address_components(address_full)
+    store_name = item.get('DEAL_NM', '').strip()
+
+    province_zh, city_zh, district_zh = parse_address_components(address_full)
+
+    # 如果从地址解析不出市，尝试从店名中提取
+    if not city_zh and store_name:
+        # 尝试从店名中匹配常见的市级行政单位
+        # 例如店名 “保山峰旺轮胎经营部” -> city_zh = “保山市”
+        # 这个列表可以根据实际情况扩充
+        known_cities_prefixes = ['昆明', '曲靖', '玉溪', '保山', '昭通', '丽江', '普洱', '临沧',
+                               '楚雄', '红河', '文山', '西双版纳', '大理', '德宏', '怒江', '迪庆'] 
+        # 加上后缀 “市”, “州”, “地区”, “盟”
+        city_patterns = [prefix + suffix for prefix in known_cities_prefixes 
+                         for suffix in ['市', '州', '地区', '盟']]
+        
+        for city_pattern in city_patterns:
+            if city_pattern in store_name:
+                # 检查是否与已解析的省份冲突或重复
+                if province_zh and city_pattern.startswith(province_zh.replace('省','').replace('自治区','')):
+                    # 如果店名中的市是 “云南省昆明市”，而省是“云南省”，则市取“昆明市”
+                    potential_city = city_pattern[len(province_zh.replace('省','').replace('自治区','')):].strip()
+                    if potential_city:
+                        city_zh = potential_city
+                        break
+                elif not province_zh or not city_pattern.startswith(province_zh): 
+                    city_zh = city_pattern
+                    break
+        # 如果店名直接包含 “XX市”，并且前面没有省份信息冲突
+        city_match_in_name = re.search(r'([^省自治区]+市|[^省自治区]+州|[^省自治区]+盟)', store_name)
+        if not city_zh and city_match_in_name:
+            potential_city_from_name = city_match_in_name.group(1)
+            # 避免将省名误认为市名，例如店名包含“云南省代理”
+            if not province_zh or not potential_city_from_name.startswith(province_zh.replace('省','').replace('自治区','')):
+                 city_zh = potential_city_from_name
+
+    # 如果省份为空，但市不为空，尝试从市推断省 (例如市是“昆明市”，省是“云南省”)
+    if not province_zh and city_zh:
+        # 这是一个简化的推断，实际需要更完整的映射表
+        if city_zh in ['昆明市', '曲靖市', '玉溪市', '保山市', '昭通市', '丽江市', '普洱市', '临沧市']:
+            province_zh = '云南省'
+        elif city_zh in ['楚雄州', '红河州', '文山州', '西双版纳州', '大理州', '德宏州', '怒江州', '迪庆州']:
+            province_zh = '云南省'
+        # 可以为其他省份添加类似逻辑
+
+    # 再次确保市名不含省名
+    if province_zh and city_zh and city_zh.startswith(province_zh.replace('省','').replace('自治区','')):
+        city_zh = city_zh[len(province_zh.replace('省','').replace('自治区','')):].strip()
+    if province_zh and city_zh and city_zh.startswith(province_zh):
+        city_zh = city_zh[len(province_zh):].strip()
+
+    # 针对用户提供的 “云南省大理市保山市腾冲县山源社区” 这种区信息混乱的情况
+    # 如果区信息包含了另一个市名，且该市名与当前市名不符，则优先使用地址中的区信息，并尝试修正市
+    if district_zh and city_zh:
+        if '保山市' in district_zh and city_zh == '大理市':
+            # 这表示原始数据可能将属于保山市的区错误地归类到大理市下
+            # 决定是修正市为“保山市”，还是清空区，或标记为特殊情况
+            # 暂时以地址中的区信息为准，如果区包含明确的市，且与当前市不同，考虑修正市
+            if '腾冲县' in district_zh or '隆阳区' in district_zh: # 假设这些是保山的区县
+                city_zh = '保山市' # 将市修正为保山市
+                # 从district_zh中移除市名
+                district_zh = district_zh.replace('保山市','').strip()
+        elif '金色家园小区' == district_zh and city_zh == '丽江市': # “金色家园小区” 不是一个行政区划
+            district_zh = '' # 清空不规范的区
+        elif '昌宁县宝丰社区' == district_zh and city_zh == '保山市':
+            district_zh = '昌宁县' # 取更规范的区县
 
     return {
         "品牌": "韩泰轮胎",
@@ -173,8 +309,8 @@ def process_store_item(item):
         "Province": get_en_province(province_zh) if province_zh else "",
         "市": city_zh,
         "City": get_en_city(city_zh) if city_zh else "",
-        "区": "",  # API不直接提供区信息，可从地址中进一步解析，此处留空
-        "店名": item.get('DEAL_NM', ''),
+        "区": district_zh,
+        "店名": store_name,
         "类型1": item.get('DEAL_TYPE1', ''),
         "类型2": item.get('DEAL_TYPE2', ''),
         "地址": address_full,
