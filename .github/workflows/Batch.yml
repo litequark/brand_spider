@@ -67,3 +67,6 @@ jobs:
 
   tianmao:
     uses: ./.github/workflows/tianmao.yml
+
+  hankooktire:
+    uses: ./.github/workflows/hankooktire.yml
