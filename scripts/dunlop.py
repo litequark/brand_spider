@@ -5,8 +5,8 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-from scripts.util.bs_sleep import sleep_with_random
-from scripts.util.location_translator import get_en_province, get_en_city
+from util.bs_sleep import sleep_with_random
+from util.location_translator import get_en_province, get_en_city
 
 RESULT_FIELDS = ["省", "Province", "市", "City", "区", "店名", "类型", "地址", "电话", "备注"]
 DEFAULT_HEADERS = {
