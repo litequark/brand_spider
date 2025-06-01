@@ -9,6 +9,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
+from util.get_cn_province_by_cn_city import get_province_by_city
+from util.location_translator import get_en_city, get_en_province
+
 CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
               "店名", "类型", "地址", "电话", "备注"]
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -43,10 +46,10 @@ class TmallStoreCrawlerPro:
 
         row = [
             "天猫养车",  # 品牌
-            "",  # 省
-            "",  # Province
-            "",  # 市区辅助
-            city_name,  # City/Area
+            get_province_by_city(city_name),  # 省
+            get_en_province(get_province_by_city(city_name)),  # Province
+            city_name,  # 市区辅助
+            get_en_city(city_name),  # City/Area
             "",  # 区
             store_data.get("name", ""),  # 店名
             "门店",  # 类型
@@ -59,7 +62,7 @@ class TmallStoreCrawlerPro:
             with open(OUTPUT_PATH, "a", newline="", encoding="gb18030") as f:
                 writer = csv.writer(f)
                 writer.writerow(row)
-            print(f"已写入记录：{store_data.get('name')}")
+            print(json.dumps(row, ensure_ascii=False))
         except Exception as e:
             print(f"写入CSV失败：{str(e)}")
 
@@ -223,7 +226,7 @@ class TmallStoreCrawlerPro:
                     print(f"地址: {store_info.get('address')}")
                     print(f"距离: {store_info.get('distance')}")
                     print(f"营业时间: {store_info.get('hours')}")
-                    print("-" * 50)
+
             except Exception as e:
                 print(f"处理门店元素失败：{str(e)}")
 
