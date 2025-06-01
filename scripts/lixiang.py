@@ -3,7 +3,7 @@ import csv
 import os
 import json
 
-from scripts.util.location_translator import get_en_province, get_en_city
+from util.location_translator import get_en_province, get_en_city
 
 API_URL = "https://api-web.lixiang.com/saos-store-web/tur_store/v1-0/service-centers?types=RETAIL%2CDELIVER%2CAFTERSALE%2CSPRAY%2CTEMPORARY_EXHIBITION%2CTEMPORARY_AFTERSALE_SUPPORT&sortType=CITY&storeEffectiveStatus="
 CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区","店名", "类型", "地址", "电话", "备注"]

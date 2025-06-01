@@ -4,8 +4,7 @@ import os
 import json
 from time import sleep
 import random
-
-from scripts.util.location_translator import get_en_province, get_en_city
+from util.location_translator import get_en_province, get_en_city
 
 BRAND_MAPPING = {
     "JK": "华为问界",

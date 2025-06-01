@@ -9,9 +9,7 @@ import bs4
 from typing import Dict, List
 import chardet
 import gzip
-
-from scripts.util.get_cn_province_by_cn_city import get_province_by_city
-from scripts.util.location_translator import get_en_province, get_en_city
+from util.location_translator import get_en_province, get_en_city
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)

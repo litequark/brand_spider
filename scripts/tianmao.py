@@ -9,8 +9,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
-from scripts.util.get_cn_province_by_cn_city import get_province_by_city
-from scripts.util.location_translator import get_en_city, get_en_province
+from util.get_cn_province_by_cn_city import get_province_by_city
+from util.location_translator import get_en_city, get_en_province
 
 CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
               "店名", "类型", "地址", "电话", "备注"]

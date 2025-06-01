@@ -1,4 +1,4 @@
-from scripts.util.location_translator import get_en_province, get_en_city
+from util.location_translator import get_en_province, get_en_city
 
 RESULT_FIELDS = ["品牌","省", "Province", "市区辅助", "City/Area", "区", "店名", "类型", "地址", "电话", "备注"]
 import requests
@@ -6,7 +6,7 @@ import csv
 import time
 import random
 import os
-import util.location_translator
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # 进入父目录（project）
 OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/xiaopeng.csv")
