@@ -107,17 +107,15 @@ class KumhoScraper(BaseScraper):
         latitude = store_data.get('LAT', '')  # 修正: LAT
 
         parsed_info = {
-            'brand_name': self.brand_name,
-            'store_name': store_name,
-            'province_name': province_name,
-            'city_name': city_name_for_csv,  # 使用从API获取或回退的市名
-            'district_name': district,
-            'address': address,
-            'phone_number': phone_number,
-            'store_type': store_type,
-            'longitude': longitude,
-            'latitude': latitude,
-            'remark': ''
+            '品牌': self.brand_name,
+            '店名': store_name,
+            '省': province_name,
+            '市区辅助': '',  # 使用从API获取或回退的市名
+            '区': district,
+            '地址': address,
+            '电话': phone_number,
+            '类型': store_type,
+            '备注': ''
         }
         print(f"解析后的门店信息 (parsed_info): {parsed_info}")
         return parsed_info
@@ -172,7 +170,7 @@ class KumhoScraper(BaseScraper):
                 f"正在请求省份 {province_name} 的门店数据，pageNum: {current_page_num}, searchGubun: {payload['searchGubun']}")
             try:
                 # 添加 verify=False 来禁用 SSL 验证
-                response = self.session.post(self.api_url, headers=headers, data=payload, timeout=20, verify=False)
+                response = self.session.post(self.api_url, headers=headers, data=payload, timeout=50, verify=False)
                 response.raise_for_status()
                 data = response.json()
 
