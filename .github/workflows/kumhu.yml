@@ -1,0 +1,44 @@
+name: "Run kumho"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tesla:
+    name: "kumho"
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+    - name: Check out the repository to the runner
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5 # 建议使用 v5 的较新稳定版
+      with:
+        python-version: '3.11' # 建议使用一个广泛支持的稳定版本，如 3.11，除非您确实需要 3.13 的特定功能
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@v1 # 版本号通常是 v1.x.x，请确认最新稳定版
+      with:
+        chrome-version: 'stable' # 或者指定一个版本如 '114'， 'stable' 通常能获取最新稳定版
+        # install-chromedriver: true # 对于 browser-actions/setup-chrome@v1，chromedriver 通常会自动安装
+
+    - name: "Retrieve data to CSV"
+      run: python scripts/kumho.py
+      env: # <--- 添加此部分
+        PYTHONIOENCODING: utf-8 # <--- 添加此行
+
+    - name: "Upload CSV"
+      uses: actions/upload-artifact@v4
+      with:
+        name: csv-output
+        # 路径应相对于 working-directory，如果脚本输出到 output/tesla.csv，且 working-directory 是项目根目录，则此路径正确
+        path: output/kumho_stores.csv # 确保这里的路径与您脚本中 OUTPUT_PATH 的最终文件名一致
