@@ -4,6 +4,8 @@ import os
 import time
 import random
 from time import sleep
+import util.location_translator
+from scripts.util.location_translator import get_en_province, get_en_city
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
@@ -55,9 +57,9 @@ def main():
                     # 构造CSV行
                     row = [
                         province,  # 省
-                        "",  # Province
+                        get_en_province(province),  # Province
                         city_name,  # 市
-                        "" # City
+                        get_en_city(city_name) ,# City
                         "",  # 区（留空）
                         dealer_name,  # 店名
                         categories[0] if len(categories) > 0 else "",  # 类型

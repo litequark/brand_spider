@@ -1,9 +1,12 @@
+from scripts.util.location_translator import get_en_province, get_en_city
+
 RESULT_FIELDS = ["品牌","省", "Province", "市区辅助", "City/Area", "区", "店名", "类型", "地址", "电话", "备注"]
 import requests
 import csv
 import time
 import random
 import os
+import util.location_translator
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # 进入父目录（project）
 OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/xiaopeng.csv")
@@ -24,9 +27,9 @@ for store in response.json().get("data", []):
     row = {
         "品牌": "小鹏汽车",  # 固定值
         "省": store.get("provinceName", ""),
-        "Province": "",
-        "市区辅助": f"{store.get('cityName', '')} {store.get('districtName', '')}",
-        "City/Area": "",
+        "Province": get_en_province(store.get("provinceName")),
+        "市区辅助": f"{store.get('cityName', '')}",
+        "City/Area": get_en_city(store.get("cityName")),
         "区": store.get("districtName", "") or "",
         "店名": store.get("storeName", ""),
         "类型": store.get("storeTypeName", ""),

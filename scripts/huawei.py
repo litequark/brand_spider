@@ -5,6 +5,8 @@ import json
 from time import sleep
 import random
 
+from scripts.util.location_translator import get_en_province, get_en_city
+
 BRAND_MAPPING = {
     "JK": "华为问界",
     "CH": "华为智界",
@@ -42,8 +44,8 @@ def process_store(store, brand_name):
     processed = {
         "品牌": brand_name,
         "省": store.get("province", ""),
-        "Province": "",  # 实际项目中可能需要中英文转换
-        "City/Area": "",
+        "Province": get_en_province(store.get("province", "")),  # 实际项目中可能需要中英文转换
+        "City/Area": get_en_city(store.get("cityName")),
         "区": store.get("county", ""),
         "店名": store["storeName"],
         "类型": store.get("vehicleStoreTypeCn", "体验中心"),
