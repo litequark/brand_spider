@@ -45,8 +45,9 @@ jobs:
   huawei:
     uses: ./.github/workflows/huawei.yml
 
-  geely:
-    uses: ./.github/workflows/geely.yml
+  # geely:
+  #   uses: ./.github/workflows/geely.yml
+  # Not run online, because GitHub runners are out of Chinese mainland, and therefore cannot access Geely CN's data.
 
   goodyear:
     uses: ./.github/workflows/goodyear.yml
