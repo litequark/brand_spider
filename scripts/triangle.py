@@ -114,7 +114,8 @@ class QueryDealerPage(BasePage):
     def get_dealer_list(self) -> list[dict]:
         self.click(self.SEARCH_BUTTON)
         sleep_with_random(1, 1)
-        dealers: list[WebElement] = self.find_elements(self.DEALER)
+        self.scroll_to_element(self.NAV_BAR)
+        dealers: list[WebElement] = self.find_elements(self.DEALER, visible=True)
         return [self.dealer_webelem_to_dict(dealer) for dealer in dealers]
     
     
@@ -174,7 +175,7 @@ def main() -> int:
         writer.writeheader()
     
     driver = init_driver()
-    query_page = QueryDealerPage(driver, base_url=home_page, timeout=5)
+    query_page = QueryDealerPage(driver, base_url=home_page, timeout=2)
     
     query_page.scroll_to_element(query_page.NAV_BAR)
     
@@ -192,14 +193,13 @@ def main() -> int:
         query_page.province = p.text
         
         p.click()
-        sleep_with_random(1, 1)
+        sleep_with_random(0, 1)
         
         elem_cities: list[WebElement] = query_page.get_city_list()
         if len(elem_cities) == 0:
             print("城市列表为空")
             query_page.scroll_to_element(query_page.SELECT_CITY_BUTTON)
             query_page.click(query_page.SELECT_CITY_BUTTON)
-            sleep_with_random(1, 1)
         
         
         for j in range(0, len(elem_cities)):
@@ -210,7 +210,6 @@ def main() -> int:
             query_page.city = c.text
             
             c.click()
-            sleep_with_random(1, 1)
             
             elem_types: list[WebElement] = query_page.get_types_list()
             
@@ -220,7 +219,6 @@ def main() -> int:
                 query_page.type = t.text
                 
                 t.click()
-                sleep_with_random(1, 1)
                 
                 dealers: list[dict] = query_page.get_dealer_list()
                 query_page.write_dealers_to_csv(dealers, OUTPUT_PATH)
@@ -228,6 +226,7 @@ def main() -> int:
                 total_dealers += len(dealers)
                 
                 while query_page.goto_next_page():
+                    sleep_with_random(1, 1)
                     dealers: list[dict] = query_page.get_dealer_list()
                     query_page.write_dealers_to_csv(dealers, OUTPUT_PATH)
                     [print(_) for _ in dealers]
@@ -235,15 +234,15 @@ def main() -> int:
                     
                 if t != elem_types[len(elem_types) - 1]:
                     elem_types = query_page.get_types_list()
-                    sleep_with_random(1, 1)
+                    sleep_with_random(0, 1)
             
             if c != elem_cities[len(elem_cities) - 1]:
                 elem_cities = query_page.get_city_list()
-                sleep_with_random(1, 1)
+                sleep_with_random(0, 1)
         
         if p != elem_provinces[len(elem_provinces) - 1]:
             elem_provinces = query_page.get_province_list()
-            sleep_with_random(1, 1)
+            sleep_with_random(0, 1)
     
     print(f'共获取到{total_dealers}家门店')
     return 0
