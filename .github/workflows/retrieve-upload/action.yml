@@ -32,3 +32,10 @@ runs:
         name: ${{ inputs.script-name }}
         path: ${{ github.workspace }}/output/*.csv
         if-no-files-found: 'error'
+
+    - name: "Upload log"
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.script-name }}
+        path: ${{ github.workspace }}/log/*.log
+        if-no-files-found: 'ignore'
