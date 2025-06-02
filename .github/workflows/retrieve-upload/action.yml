@@ -21,7 +21,7 @@ runs:
         chrome-version: 136
         # Install the compatible version of ChromeDriver with the installed Google Chrome/Chromium.
         install-chromedriver: true
-        
+
     - name: "Satisfy requirements.txt"
       run: |
         echo '[BRAND_SPIDER] Upgrading pip...'
@@ -29,7 +29,7 @@ runs:
         echo '[BRAND_SPIDER] Installing pipreqs...'
         pip install pipreqs
         echo '[BRAND_SPIDER] Generating requirements.txt...'
-        pipreqs . --force
+        pipreqs . --force --encoding=utf8
         echo '[BRAND_SPIDER] Satisfying requirements.txt...'
         pip install -r requirements.txt
       shell: bash

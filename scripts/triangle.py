@@ -166,7 +166,8 @@ def main() -> int:
         filename=LOGGING_PATH,       # 日志文件名
         level=logging.INFO,       # 日志级别
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S')
+        datefmt='%Y-%m-%d %H:%M:%S',
+        encoding='utf-8')
     
     with open(file=OUTPUT_PATH, mode='w', encoding='utf-8', newline='') as fp:
         writer = csv.DictWriter(f=fp, fieldnames=RESULT_FIELDS, quoting=csv.QUOTE_ALL)
