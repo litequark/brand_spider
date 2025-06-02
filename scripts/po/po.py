@@ -34,13 +34,18 @@ class BasePage:
             raise
 
 
-    def find_elements(self, locator, timeout=None):
+    def find_elements(self, locator, timeout=None, visible: bool = False):
         """查找所有元素构成的列表"""
         timeout = timeout or self.timeout
         try:
-            return WebDriverWait(self.driver, timeout).until(
-                EC.presence_of_all_elements_located(locator)
-            )
+            if visible:
+                return WebDriverWait(self.driver, timeout).until(
+                    EC.visibility_of_all_elements_located(locator)
+                )
+            else:
+                return WebDriverWait(self.driver, timeout).until(
+                    EC.presence_of_all_elements_located(locator)
+                )
         except TimeoutException:
             self.logger.warning(f"查找元素集合超时: {locator}")
             return []  # 返回空列表而非抛出异常
