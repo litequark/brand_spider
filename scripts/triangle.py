@@ -234,6 +234,7 @@ def main() -> int:
             elem_provinces = query_page.get_province_list()
             sleep_with_random(1, 1)
     
+    print(f'共获取到{total_dealers}家门店')
     return 0
 
     
