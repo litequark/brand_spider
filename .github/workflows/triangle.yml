@@ -10,7 +10,7 @@ on:
 jobs:
   main:
     name: main
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ${{ github.workspace }}
