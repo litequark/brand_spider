@@ -115,7 +115,22 @@ class BasePage:
         elif isinstance(locator, WebElement):
             element = locator
         
-        self.execute_script("arguments[0].scrollIntoView();", element)
+        self.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+    
+    
+    def scroll_to_contained_element(self, target: tuple[str, str] | WebElement, container: tuple[str, str] | WebElement):
+        """将指定容器滚动，使指定元素位于其视口中央"""
+        if isinstance(target, tuple):
+            elem_target = self.find_element(target)
+        elif isinstance(target, WebElement):
+            elem_target = target
+            
+        if isinstance(container, tuple):
+            elem_container = self.find_element(container)
+        elif isinstance(container, WebElement):
+            elem_container = container
+            
+        self.execute_script("arguments[0].scrollTop = arguments[1].offsetTop;", elem_container, elem_target)
 
 
     # ####################
