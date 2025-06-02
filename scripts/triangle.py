@@ -25,6 +25,8 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # 进入子目录
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "output")
 OUTPUT_PATH = os.path.join(OUTPUT_DIR, 'triangle.csv')
+LOGGING_DIR = os.path.join(PROJECT_ROOT, "log")
+LOGGING_PATH = os.path.join(LOGGING_DIR, 'triangle.log')
 
 
 class QueryDealerPage(BasePage):
@@ -158,6 +160,14 @@ def main() -> int:
     total_dealers: int = 0
     
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(LOGGING_PATH), exist_ok=True)
+    
+    logging.basicConfig(
+        filename=LOGGING_PATH,       # 日志文件名
+        level=logging.INFO,       # 日志级别
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S')
+    
     with open(file=OUTPUT_PATH, mode='w', encoding='utf-8', newline='') as fp:
         writer = csv.DictWriter(f=fp, fieldnames=RESULT_FIELDS, quoting=csv.QUOTE_ALL)
         writer.writeheader()
