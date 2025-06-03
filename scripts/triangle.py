@@ -251,6 +251,10 @@ def main() -> int:
             for k in range(0, len(elem_types)):
                 query_page.scroll_to_element(query_page.SELECT_CITY_BUTTON)
                 t: WebElement = elem_types[k]
+                try:
+                    WebDriverWait(query_page.driver, 5).until(lambda _: t.text != '')
+                except TimeoutException as e:
+                    query_page.logger(f'从 轮胎类型菜单项 中 获取类型文本 失败，错误信息：{e}')
                 query_page.type = t.text
                 query_page.click(t)
 
