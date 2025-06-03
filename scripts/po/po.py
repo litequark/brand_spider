@@ -1,14 +1,9 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+import time
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.remote.webelement import WebElement  # 方便类型注解
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException  # 异常识别
-
 import logging
-
-from scripts.util.bs_sleep import sleep_with_random
 
 
 class BasePage:
@@ -114,7 +109,7 @@ class BasePage:
                 element = self.find_element(locator, timeout=5)
             except TimeoutException:
                 self.logger.error(f"Scroll to element {locator} has failed (failed to find element). Retrying...")
-                sleep_with_random(2, 1)
+                time.sleep(3)
                 return self.scroll_to_element(locator)
         elif isinstance(locator, WebElement):
             element = locator
