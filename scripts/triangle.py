@@ -44,7 +44,10 @@ class QueryDealerPage(BasePage):
     # 可滚动的容器
     PROVINCE_CONTAINER = (By.CSS_SELECTOR, '#mCSB_1')
     CITY_CONTAINER = (By.CSS_SELECTOR, 'div.city_lists > div.mCustomScrollBox')
-    
+
+    # 其他元素
+    BOTTOM_COPYRIGHT = (By.CSS_SELECTOR, 'body > div > div.l_pub_bottom > div.l_pub_bottcopy')
+
     PROVINCE = (By.CSS_SELECTOR, '#mCSB_1_container > p.select_province:not([data-val=""])')
     CITY = (By.CSS_SELECTOR, 'div.city_lists > div > div.mCSB_container > p')
     TYPE = (By.CSS_SELECTOR, '#store_form > div.he_xzfyu.fl.clearfix > div.he_xzfrm.fl.clearfix > div.l_c3_csxl.l_c3_ltlb.fl.normalxl.l_c3_csxl_act > div.l_c3_cslist.l_c3_lblist > p.select_type:not([data-val=""])')
