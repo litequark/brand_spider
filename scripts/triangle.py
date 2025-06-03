@@ -66,23 +66,50 @@ class QueryDealerPage(BasePage):
         with open(path, mode='a', encoding='utf-8', newline='') as fp:
             writer = csv.DictWriter(fp, fieldnames=RESULT_FIELDS, quoting=csv.QUOTE_ALL)
             writer.writerows(dealers)
-        
-     
-    def dealer_webelem_to_dict(self, dealer: WebElement) -> dict:
+
+    def dealer_elem_to_dict(self, dealer: WebElement) -> dict:
+        # 门店信息字段选择器
+        store_name_locator: tuple[str, str] = (By.CSS_SELECTOR, 'div.dlul_tit')
+        store_addr_locator: tuple[str, str] = (By.XPATH,'.//ul[@class="dlul_ul"]/li[@class="dlul_ul_li"]/div[@class="dlul_ul_li_box" and .//div[@class="dlul_ul_li_le" and .//div[@class="dull_text" and text()="地  址："]]]/div[@class="dlul_ul_li_ri"]/p')
+        store_phone_locator: tuple[str, str] = (By.XPATH,'.//ul[@class="dlul_ul"]/li[@class="dlul_ul_li"]/a[@class="dlul_ul_li_box" and .//div[@class="dlul_ul_li_le" and .//div[@class="dull_text" and text()="电  话："]]]/div[@class="dlul_ul_li_ri"]/p')
+
+        try:
+            # 获取店名
+            store_name_elem = WebDriverWait(dealer, 2).until(EC.presence_of_element_located(store_name_locator))
+            store_name: str = store_name_elem.text.strip().replace('\\n', ' ').replace('\n',' ')
+
+            # 获取地址
+            store_address_elem = WebDriverWait(dealer, 2).until(EC.presence_of_element_located(store_addr_locator))
+            store_address: str = store_address_elem.text.strip().replace('获取路线', '').replace('\\n', ' ').replace('\n', ' ')
+
+            # 获取电话
+            store_phone_elem = WebDriverWait(dealer, 2).until(EC.presence_of_element_located(store_phone_locator))
+            store_phone: str = store_phone_elem.text.strip().replace('\\n','').replace('\n','')
+        except TimeoutException:
+            self.logger.warning(f"店名元素未找到: {dealer.get_attribute('outerHTML')}")
+            store_name = str()
+            store_address = str()
+            store_phone = str()
         return {
             "省": self.province,
             "Province": get_en_province(self.province),
             "市区辅助": self.city,
             "City/Area": get_en_city(self.city),
             "区": str(),
-            "店名": dealer.find_element(By.CSS_SELECTOR, 'div.dlul_tit').text.strip().replace('\\n', ' ').replace('\n', ' '),
+            "店名": store_name,
             "类型": self.type,
-            "地址": dealer.find_element(By.XPATH, '//ul[@class="dlul_ul"]/li[@class="dlul_ul_li"]/div[@class="dlul_ul_li_box" and .//div[@class="dlul_ul_li_le" and .//div[@class="dull_text" and text()="地  址："]]]/div[@class="dlul_ul_li_ri"]/p').text.strip().replace('获取路线','').replace('\\n', ' ').replace('\n', ' '),
-            "电话": dealer.find_element(By.XPATH, '//ul[@class="dlul_ul"]/li[@class="dlul_ul_li"]/a[@class="dlul_ul_li_box" and .//div[@class="dlul_ul_li_le" and .//div[@class="dull_text" and text()="电  话："]]]/div[@class="dlul_ul_li_ri"]/p').text.strip().replace('\\n', ' ').replace('\n', ' '),
+            "地址": store_address,
+            "电话": store_phone,
             "备注": str()
         }
-        
-        
+
+    def paging_btn_exists(self) -> bool:
+        try:
+            self.find_element(self.NEXT_PAGE_BUTTON, timeout=2)
+            return True
+        except TimeoutException:
+            return False
+
     def get_province_list(self) -> list[WebElement]:
         self.click(self.SELECT_PROVINCE_BUTTON)
         sleep_with_random(1, 1)
@@ -92,47 +119,53 @@ class QueryDealerPage(BasePage):
     
     def get_city_list(self) -> list[WebElement]:
         self.click(self.SELECT_CITY_BUTTON)
-        sleep_with_random(1, 1)
-        cities: list[WebElement] = self.find_elements(self.CITY)
+        cities: list[WebElement] = self.find_elements(self.CITY, timeout=5)
         return cities
     
     
     def get_types_list(self) -> list[WebElement]:
+        self.scroll_to_element(self.SELECT_TYPE_BUTTON)
         self.click(self.SELECT_TYPE_BUTTON)
-        sleep_with_random(1, 1)
         types: list[WebElement] = self.find_elements(self.TYPE)
-        return [t for t in types if t.text != '']
-    
-    
+        return types
+
     def get_brands_list(self) -> list[WebElement]:
         self.click(self.SELECT_BRAND_BUTTON)
         sleep_with_random(1, 1)
         brands: list[WebElement] = self.find_elements(self.BRAND)
         return brands
-    
-    
-    def get_dealer_list(self) -> list[dict]:
-        self.click(self.SEARCH_BUTTON)
-        sleep_with_random(1, 1)
-        self.scroll_to_element(self.NAV_BAR)
-        dealers: list[WebElement] = self.find_elements(self.DEALER, visible=True)
-        return [self.dealer_webelem_to_dict(dealer) for dealer in dealers]
-    
-    
+
+    def get_dealer_list(self, perform_search: bool = True) -> list[dict]:
+        if perform_search:
+            self.click(self.SEARCH_BUTTON)
+            WebDriverWait(self.driver, timeout=5).until(EC.presence_of_element_located(self.SEARCH_BUTTON))
+        if not self.paging_btn_exists():
+            return list()
+        else:
+            sleep_with_random(1, 1)
+            self.scroll_to_element(self.BOTTOM_COPYRIGHT) # 滚动到页面末尾分页按钮处，以触发门店卡片CSS效果的加载
+            sleep_with_random(1, 1)
+            dealers: list[WebElement] = self.find_elements(self.DEALER, timeout=4) # 等待门店卡片全部可见然后获取
+            ret: list[dict] = list()
+            for d in dealers:
+                to_append: dict = self.dealer_elem_to_dict(d)
+                ret.append(to_append)
+                for k in to_append:
+                    if (k not in {"区", "备注"}) and to_append[k] == str():
+                        self.logger.warning(f"Empty field(s) in dealer! DOM: {d.get_attribute("outerHTML").replace("\n", '')}, Dict: {to_append}")
+            return ret
+
     def goto_next_page(self) -> bool:
         try:
             next_btn: WebElement = self.find_element(self.NEXT_PAGE_BUTTON)
-            if next_btn.get_attribute('href') == 'javascript:void(0);': # 无下一页
-                return False
-            else:
-                try:
-                    self.click(self.NEXT_PAGE_BUTTON)
-                    sleep_with_random(1, 1)
-                except Exception:
-                    return False
-                return True
-        except TimeoutException:
+        except TimeoutException: # 该页面列表为空，没有下一页按钮，翻页结束
             return False
+
+        if next_btn.get_attribute('href') == 'javascript:void(0);':  # 存在按钮但无下一页，翻页结束
+            return False
+        else:
+            self.click(self.NEXT_PAGE_BUTTON)
+            return True
 
 
 def init_driver():
@@ -193,8 +226,7 @@ def main() -> int:
         query_page.province = p.text
         
         p.click()
-        sleep_with_random(0, 1)
-        
+
         elem_cities: list[WebElement] = query_page.get_city_list()
         if len(elem_cities) == 0:
             print("城市列表为空")
@@ -208,26 +240,23 @@ def main() -> int:
             query_page.scroll_to_contained_element(c, query_page.CITY_CONTAINER)
             
             query_page.city = c.text
-            
-            c.click()
-            
+            query_page.click(c)
+
             elem_types: list[WebElement] = query_page.get_types_list()
             
             
             for k in range(0, len(elem_types)):
                 t: WebElement = elem_types[k]
                 query_page.type = t.text
-                
-                t.click()
-                
+                query_page.click(t)
+
                 dealers: list[dict] = query_page.get_dealer_list()
                 query_page.write_dealers_to_csv(dealers, OUTPUT_PATH)
                 [print(_) for _ in dealers]
                 total_dealers += len(dealers)
                 
                 while query_page.goto_next_page():
-                    sleep_with_random(1, 1)
-                    dealers: list[dict] = query_page.get_dealer_list()
+                    dealers: list[dict] = query_page.get_dealer_list(perform_search=False)
                     query_page.write_dealers_to_csv(dealers, OUTPUT_PATH)
                     [print(_) for _ in dealers]
                     total_dealers += len(dealers)
