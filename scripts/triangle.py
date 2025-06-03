@@ -197,8 +197,8 @@ def main() -> int:
     os.makedirs(os.path.dirname(LOGGING_PATH), exist_ok=True)
     
     logging.basicConfig(
-        filename=LOGGING_PATH,       # 日志文件名
-        level=logging.INFO,       # 日志级别
+        filename=LOGGING_PATH,  # 日志文件名
+        level=logging.WARNING,  # 日志级别
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S',
         encoding='utf-8')
