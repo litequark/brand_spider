@@ -28,11 +28,12 @@ LOGGING_PATH = os.path.join(LOGGING_DIR, 'triangle.log')
 
 
 class QueryDealerPage(BasePage):
+    """Page Object"""
     '''元素选择器'''
     # 导航栏与标题
     NAV_BAR = (By.CSS_SELECTOR, 'body > div > div.he_theme > div > section > div.l_breadnav')
     TITLE = (By.CSS_SELECTOR, 'body > div > div.he_theme > div > section > div.l_cbox1 > div.l_cbx1tit.l_sybx2tit > h2')
-    
+
     # 按钮
     SELECT_PROVINCE_BUTTON = (By.CSS_SELECTOR, '#show_province')
     SELECT_CITY_BUTTON = (By.CSS_SELECTOR, '#show_city')
@@ -40,7 +41,7 @@ class QueryDealerPage(BasePage):
     SELECT_BRAND_BUTTON = (By.CSS_SELECTOR, '#show_tyre')
     SEARCH_BUTTON = (By.CSS_SELECTOR, '#store_sub')
     NEXT_PAGE_BUTTON = (By.CSS_SELECTOR, 'body > div > div.he_theme > div > section > div.l_cbox1 > div.d_list > div > div > div > ul > a.next')
-    
+
     # 可滚动的容器
     PROVINCE_CONTAINER = (By.CSS_SELECTOR, '#mCSB_1')
     CITY_CONTAINER = (By.CSS_SELECTOR, 'div.city_lists > div.mCustomScrollBox')
@@ -50,20 +51,25 @@ class QueryDealerPage(BasePage):
 
     PROVINCE = (By.CSS_SELECTOR, '#mCSB_1_container > p.select_province:not([data-val=""])')
     CITY = (By.CSS_SELECTOR, 'div.city_lists > div > div.mCSB_container > p')
-    TYPE = (By.CSS_SELECTOR, '#store_form > div.he_xzfyu.fl.clearfix > div.he_xzfrm.fl.clearfix > div.l_c3_csxl.l_c3_ltlb.fl.normalxl.l_c3_csxl_act > div.l_c3_cslist.l_c3_lblist > p.select_type:not([data-val=""])')
-    BRAND = (By.CSS_SELECTOR, '#store_form > div.he_xzfyu.fl.clearfix > div.he_xzfrm.fl.clearfix > div.l_c3_csxl.l_c3_ltlb.fl.normalxl.l_c3_csxl_act > div.l_c3_cslist.l_c3_lblist > p.select_tyre:not([data-val=""])')
-    DEALER = (By.CSS_SELECTOR, 'body > div > div.he_theme > div > section > div.l_cbox1 > div.d_list > div > ul > li > div.dlul_box')
-    
-    
-    def __init__(self, driver, base_url: str, timeout: int=5) -> None:
+    TYPE = (By.CSS_SELECTOR, 'div.l_c3_cslist.l_c3_lblist > p.select_type[data-val="1"],'
+            + 'div.l_c3_cslist.l_c3_lblist > p.select_type[data-val="2"],'
+            + 'div.l_c3_cslist.l_c3_lblist > p.select_type[data-val="3"]')
+    BRAND = (By.CSS_SELECTOR,
+             '#store_form > div.he_xzfyu.fl.clearfix > div.he_xzfrm.fl.clearfix > ' +
+             'div.l_c3_csxl.l_c3_ltlb.fl.normalxl.l_c3_csxl_act > div.l_c3_cslist.l_c3_lblist > ' +
+             'p.select_tyre:not([data-val=""])')
+    DEALER = (By.CSS_SELECTOR,
+              'body > div > div.he_theme > div > section > div.l_cbox1 > div.d_list > div > ul > li > div.dlul_box')
+
+    def __init__(self, driver, base_url: str, timeout: int = 5) -> None:
         super().__init__(driver, base_url, timeout)
         self.province: str = str()
         self.city: str = str()
         self.type: str = str()
         self.brand: str = str()
-        
-        
-    def write_dealers_to_csv(self, dealers: list[dict], path: str) -> None:
+
+    @staticmethod
+    def write_dealers_to_csv(dealers: list[dict], path: str) -> None:
         with open(path, mode='a', encoding='utf-8', newline='') as fp:
             writer = csv.DictWriter(fp, fieldnames=RESULT_FIELDS, quoting=csv.QUOTE_ALL)
             writer.writerows(dealers)
@@ -116,14 +122,12 @@ class QueryDealerPage(BasePage):
         sleep_with_random(1, 1)
         provinces: list[WebElement] = self.find_elements(self.PROVINCE)
         return provinces
-    
-    
+
     def get_city_list(self) -> list[WebElement]:
         self.click(self.SELECT_CITY_BUTTON)
         cities: list[WebElement] = self.find_elements(self.CITY, timeout=5)
         return cities
-    
-    
+
     def get_types_list(self) -> list[WebElement]:
         self.scroll_to_element(self.SELECT_TYPE_BUTTON)
         self.click(self.SELECT_TYPE_BUTTON)
@@ -170,7 +174,7 @@ class QueryDealerPage(BasePage):
 
 
 def init_driver():
-    DEFAULT_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
+    default_ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
     chrome_options = Options()
     # 禁用地理位置权限
     chrome_options.add_argument("--disable-geolocation")
@@ -180,52 +184,52 @@ def init_driver():
     chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument(f"user-agent={DEFAULT_UA}")
+    chrome_options.add_argument(f"user-agent={default_ua}")
     # 设置默认拒绝所有网站的定位请求
     chrome_options.add_experimental_option("prefs", {
         "profile.default_content_setting_values.geolocation": 2,  # 2=拒绝, 1=允许, 0=询问
         "profile.default_content_setting_values.notifications": 2,  # 可选：禁用通知
     })
     return webdriver.Chrome(options=chrome_options)
-        
-        
+
+
 def main() -> int:
     home_page: str = 'https://www.triangle.com.cn/cn/index/listview/catid/6.html'
-    
+
     total_dealers: int = 0
-    
+
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     os.makedirs(os.path.dirname(LOGGING_PATH), exist_ok=True)
-    
+
     logging.basicConfig(
         filename=LOGGING_PATH,  # 日志文件名
         level=logging.WARNING,  # 日志级别
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S',
         encoding='utf-8')
-    
+
     with open(file=OUTPUT_PATH, mode='w', encoding='utf-8', newline='') as fp:
         writer = csv.DictWriter(f=fp, fieldnames=RESULT_FIELDS, quoting=csv.QUOTE_ALL)
         writer.writeheader()
-    
+
     driver = init_driver()
     query_page = QueryDealerPage(driver, base_url=home_page, timeout=2)
-    
+
     query_page.scroll_to_element(query_page.NAV_BAR)
-    
+
     elem_provinces: list[WebElement] = query_page.get_province_list()
     if len(elem_provinces) == 0:
         print("省份列表为空")
         return 1
     sleep_with_random(1, 1)
-    
+
     for i in range(0, len(elem_provinces)):
         p: WebElement = elem_provinces[i]
-        
+
         query_page.scroll_to_contained_element(p, query_page.PROVINCE_CONTAINER)
-        
+
         query_page.province = p.text
-        
+
         p.click()
 
         elem_cities: list[WebElement] = query_page.get_city_list()
@@ -233,20 +237,17 @@ def main() -> int:
             print("城市列表为空")
             query_page.scroll_to_element(query_page.SELECT_CITY_BUTTON)
             query_page.click(query_page.SELECT_CITY_BUTTON)
-        
-        
+
         for j in range(0, len(elem_cities)):
             c: WebElement = elem_cities[j]
-            
             query_page.scroll_to_contained_element(c, query_page.CITY_CONTAINER)
-            
             query_page.city = c.text
             query_page.click(c)
 
             elem_types: list[WebElement] = query_page.get_types_list()
-            
-            
+
             for k in range(0, len(elem_types)):
+                query_page.scroll_to_element(query_page.SELECT_CITY_BUTTON)
                 t: WebElement = elem_types[k]
                 query_page.type = t.text
                 query_page.click(t)
@@ -255,28 +256,28 @@ def main() -> int:
                 query_page.write_dealers_to_csv(dealers, OUTPUT_PATH)
                 [print(_) for _ in dealers]
                 total_dealers += len(dealers)
-                
+
                 while query_page.goto_next_page():
                     dealers: list[dict] = query_page.get_dealer_list(perform_search=False)
                     query_page.write_dealers_to_csv(dealers, OUTPUT_PATH)
                     [print(_) for _ in dealers]
                     total_dealers += len(dealers)
-                    
+
                 if t != elem_types[len(elem_types) - 1]:
                     elem_types = query_page.get_types_list()
                     sleep_with_random(0, 1)
-            
+
             if c != elem_cities[len(elem_cities) - 1]:
                 elem_cities = query_page.get_city_list()
                 sleep_with_random(0, 1)
-        
+
         if p != elem_provinces[len(elem_provinces) - 1]:
             elem_provinces = query_page.get_province_list()
             sleep_with_random(0, 1)
-    
+
     print(f'共获取到{total_dealers}家门店')
     return 0
 
-    
+
 if __name__ == "__main__":
     main()
