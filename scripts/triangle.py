@@ -153,6 +153,8 @@ class QueryDealerPage(BasePage):
             dealers: list[WebElement] = self.find_elements(self.DEALER, timeout=4) # 等待门店卡片全部可见然后获取
             ret: list[dict] = list()
             for d in dealers:
+                self.scroll_to_element(d)
+                sleep_with_random(1, 1)
                 to_append: dict = self.dealer_elem_to_dict(d)
                 ret.append(to_append)
                 for k in to_append:
