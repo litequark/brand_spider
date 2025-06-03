@@ -38,15 +38,19 @@ runs:
       run: |
         python '${{ github.workspace }}/scripts/${{ inputs.script-name }}.py'
       shell: bash
+      continue-on-error: true
 
     - name: "Upload data"
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.script-name }}
         path: ${{ github.workspace }}/output/*.csv
         if-no-files-found: 'error'
+      continue-on-error: true
 
     - name: "Upload log"
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.script-name }}
