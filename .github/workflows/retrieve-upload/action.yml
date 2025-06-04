@@ -60,3 +60,4 @@ runs:
     - name: "Force failure if composite failed"
       if: ${{ failure() && steps.composite_step.conclusion == 'failure' }}
       run: exit 1  # 手动触发失败
+      shell: bash
