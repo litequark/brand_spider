@@ -174,7 +174,7 @@ class QueryDealerPage(BasePage):
                     self.retry_attempts += 1
                     self.logger.info(f'Retrying, attempt count: {self.retry_attempts}...')
                     sleep_with_random(1, 1)
-                    return self.get_dealer_list(perform_search)
+                    return self.get_dealer_list(perform_search=False)
                 else:
                     self.logger.error(f'Retry attempt count exceeded {self.retry_attempts}. Continuing.')
                     self.retry_attempts = 0
