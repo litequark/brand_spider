@@ -154,15 +154,29 @@ class QueryDealerPage(BasePage):
             sleep_with_random(1, 1)
             dealers: list[WebElement] = self.find_elements(self.DEALER, timeout=4) # 等待门店卡片全部可见然后获取
             ret: list[dict] = list()
-            for d in dealers:
-                self.scroll_to_element(d)
-                sleep_with_random(1, 1)
-                to_append: dict = self.dealer_elem_to_dict(d)
-                ret.append(to_append)
-                for k in to_append:
-                    if (k not in {"区", "备注"}) and to_append[k] == str():
-                        self.logger.warning(f"Empty field(s) in dealer! DOM: {d.get_attribute("outerHTML").replace("\n", '')}, Dict: {to_append}")
-            return ret
+            try:
+                for d in dealers:
+                    self.scroll_to_element(d)
+                    sleep_with_random(1, 1)
+                    to_append: dict = self.dealer_elem_to_dict(d)
+                    ret.append(to_append)
+                    for k in to_append:
+                        if (k not in {"区", "备注"}) and to_append[k] == '':
+                            self.logger.warning(f"Empty field(s) in dealer! DOM: {d.get_attribute("outerHTML").replace("\n", '')}, Dict: {to_append}")
+                            raise EmptyFieldsError
+                self.retry_attempts = 0
+                return ret
+            except EmptyFieldsError:
+                # 重试，不超过3次
+                if self.retry_attempts < 3:
+                    self.retry_attempts += 1
+                    self.logger.info(f'Retrying, attempt count: {self.retry_attempts}...')
+                    sleep_with_random(1, 1)
+                    return self.get_dealer_list(perform_search)
+                else:
+                    self.logger.error(f'Retry attempt count exceeded {self.retry_attempts}. Continuing.')
+                    self.retry_attempts = 0
+                    return ret
 
     def goto_next_page(self) -> bool:
         try:
