@@ -12,9 +12,6 @@ from selenium.webdriver.remote.webelement import WebElement # 方便类型注解
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException # 异常识别
 from util.bs_sleep import sleep_with_random
 from util.location_translator import get_en_city, get_en_province
-import requests
-from urllib.parse import unquote
-
 from po.po import BasePage
 
 RESULT_FIELDS = ["省", "Province", "市区辅助", "City/Area", "区", "店名", "类型", "地址", "电话", "备注"]
