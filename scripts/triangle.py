@@ -70,6 +70,8 @@ class QueryDealerPage(BasePage):
         self.type: str = str()
         self.brand: str = str()
 
+        self.retry_attempts: int = 0
+
     @staticmethod
     def write_dealers_to_csv(dealers: list[dict], path: str) -> None:
         with open(path, mode='a', encoding='utf-8', newline='') as fp:
