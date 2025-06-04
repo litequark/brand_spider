@@ -27,6 +27,11 @@ LOGGING_DIR = os.path.join(PROJECT_ROOT, "log")
 LOGGING_PATH = os.path.join(LOGGING_DIR, 'triangle.log')
 
 
+class EmptyFieldsError(Exception):
+    """门店信息存在空字段的异常"""
+    pass
+
+
 class QueryDealerPage(BasePage):
     """Page Object"""
     '''元素选择器'''
