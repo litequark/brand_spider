@@ -308,4 +308,4 @@ def main():
             print(f"爬取完成，共计 {dealer_count} 个门店数据已保存到 {OUTPUT_PATH}")
 
 if __name__ == "__main__":
-            main()
+    main()
