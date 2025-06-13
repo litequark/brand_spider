@@ -257,7 +257,6 @@ def main():
                             print(f"跳过重复店铺: {shop_name}")
                             continue
 
-                        # 新增：记录已处理的店名
                         seen_shop_names.add(shop_name)
                         shops_buffer.append(row)
                         dealer_count += 1
