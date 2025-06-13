@@ -1,0 +1,77 @@
+name: "Batch of approved scripts"
+
+on:
+  workflow_dispatch:
+
+  schedule:
+  - cron: "30 20 * * *"
+
+defaults:
+  run:
+    working-directory: ./scripts
+
+jobs:
+  #byd:
+  #  uses: ./.github/workflows/byd.yml
+  #按照经验来看，byd目前是完成度最高的脚本，之后再爬，debug阶段先放一下
+  
+  audi:
+    uses: ./.github/workflows/audi.yml
+
+  benz:
+    uses: ./.github/workflows/benz.yml
+
+  bridgestone:
+    uses: ./.github/workflows/bridgestone.yml
+
+  michelin:
+    uses: ./.github/workflows/michelin.yml
+
+  continental:
+    uses: ./.github/workflows/continental.yml
+
+  tesla:
+    uses: ./.github/workflows/tesla.yml
+
+  maserati:
+    uses: ./.github/workflows/maserati.yml
+
+  porsche:
+    uses: ./.github/workflows/porsche.yml
+
+  lixiang:
+    uses: ./.github/workflows/lixiang.yml
+
+  huawei:
+    uses: ./.github/workflows/huawei.yml
+
+  # geely:
+  #   uses: ./.github/workflows/geely.yml
+  # Not run online, because GitHub runners are out of Chinese mainland, and therefore cannot access Geely CN's data.
+
+  goodyear:
+    uses: ./.github/workflows/goodyear.yml
+
+  leapmotor:
+    uses: ./.github/workflows/leapmotor.yml
+
+  volvo:
+    uses: ./.github/workflows/volvo.yml
+
+  xiaopeng:
+    uses: ./.github/workflows/xiaopeng.yml
+
+  bwm:
+    uses: ./.github/workflows/bwm.yml
+
+  ferrari:
+    uses: ./.github/workflows/ferrari.yml
+
+  tianmao:
+    uses: ./.github/workflows/tianmao.yml
+
+  hankooktire:
+    uses: ./.github/workflows/hankooktire.yml
+
+  landrover:
+    uses: ./.github/workflows/landrover.yml
