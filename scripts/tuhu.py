@@ -7,20 +7,57 @@ import csv
 from time import sleep
 import time
 from typing import List, Dict, Tuple
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from util.location_translator import get_en_province, get_en_city
+
+# 全局变量
+batch_size = 1000
+shops_buffer = []
+request_count = 0
+MAX_RETRIES = 5  # 最大重试次数
+INITIAL_DELAY = 1  # 初始延迟时间（秒）
+BACKOFF_FACTOR = 2  # 指数退避因子
+
+
+# 创建带重试机制的Session
+def create_retry_session():
+    """创建带重试机制的Session对象，特别优化网络切换场景"""
+    session = requests.Session()
+
+    # 配置重试策略
+    retry_strategy = Retry(
+        total=MAX_RETRIES,
+        backoff_factor=BACKOFF_FACTOR,
+        status_forcelist=[500, 502, 503, 504],
+        allowed_methods=["GET", "POST"],
+        connect=MAX_RETRIES,  # 专门处理连接错误
+        read=MAX_RETRIES,  # 专门处理读取错误
+        redirect=0,  # 不重试重定向
+        respect_retry_after_header=False
+    )
+
+    # 适配器配置
+    adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=100, pool_maxsize=100)
+
+    # 挂载适配器
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+
+    # 关闭长连接，避免网络切换时的连接残留问题
+    session.keep_alive = False
+
+    return session
+
+
+# 创建全局Session对象
+retry_session = create_retry_session()
 
 
 def sleep_with_random(interval: int, rand_max: int) -> None:
     rand = random.uniform(0.0, 1.0) * rand_max
     sleep(interval + rand)
 
-
-# 全局变量
-batch_size = 1000
-shops_buffer = []
-request_count = 0
-MAX_RETRIES = 5
-INTERVAL = 1
 
 # API 接口
 GET_CITY_API = "https://gateway.tuhu.cn/cl/cl-base-region-query/region/selectCityList"
@@ -89,11 +126,14 @@ def get_random_headers():
 os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
 
 
-# --- 数据获取函数 ---
+# --- 数据获取函数（带重试机制）---
 def get_all_cities():
-    """获取所有城市数据"""
+    """获取所有城市数据（带重试机制）"""
     try:
-        response = requests.get(GET_CITY_API, headers=get_request_headers(), timeout=10)
+        # 使用带重试机制的session
+        response = retry_session.get(GET_CITY_API,
+                                     headers=get_request_headers(),
+                                     timeout=10)
         response.raise_for_status()
 
         if response.json().get('code') == 10000:
@@ -126,7 +166,7 @@ def get_all_cities():
 
 
 def get_shops_by_city(city_info: Dict, service_type: str, page_index: int = 1, page_size: int = 20):
-    """根据城市和服务类型获取店铺数据"""
+    """根据城市和服务类型获取店铺数据（带重试机制）"""
     payload = {
         "serviceType": service_type,
         "city": city_info['city'],
@@ -143,7 +183,8 @@ def get_shops_by_city(city_info: Dict, service_type: str, page_index: int = 1, p
     }
 
     try:
-        response = requests.post(
+        # 使用带重试机制的session
+        response = retry_session.post(
             GET_SHOP_API,
             headers=get_request_headers(),
             data=json.dumps(payload, ensure_ascii=False),
@@ -293,16 +334,16 @@ def main():
                             shops_buffer.clear()
                         sys.exit(1)
 
-                    print(f"等待 {2   **   retries} 秒后重试...")
-                    sleep(2   **  retries)
+                    print(f"等待 {2    **    retries} 秒后重试...")
+                    sleep(2    **  retries)
 
-            # 写入剩余数据（新增：确保最后一批数据也被写入）
-            if shops_buffer:
-                with open(OUTPUT_PATH, "a", encoding="utf-8", newline='') as f:
-                    dict_writer = csv.DictWriter(f, fieldnames=RESULT_FIELDS)
-                    dict_writer.writerows(shops_buffer)
-                print(f"已写入剩余 {len(shops_buffer)} 条店铺数据到CSV")
-                shops_buffer.clear()
+                    # 写入剩余数据（确保最后一批数据也被写入）
+                    if shops_buffer:
+                        with open(OUTPUT_PATH, "a", encoding="utf-8", newline='') as f:
+                            dict_writer = csv.DictWriter(f, fieldnames=RESULT_FIELDS)
+                            dict_writer.writerows(shops_buffer)
+                        print(f"已写入剩余 {len(shops_buffer)} 条店铺数据到CSV")
+                        shops_buffer.clear()
 
             print(f"爬取完成，共计 {dealer_count} 个门店数据已保存到 {OUTPUT_PATH}")
 
