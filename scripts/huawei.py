@@ -4,8 +4,8 @@ import os
 import json
 from time import sleep
 import random
+from util.location_translator import get_en_province, get_en_city
 
-# 品牌映射关系（根据华为官网最新品牌代码）
 BRAND_MAPPING = {
     "JK": "华为问界",
     "CH": "华为智界",
@@ -19,7 +19,8 @@ CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
               "店名", "类型", "地址", "电话", "备注"]
 API_URL = "https://cbg.huawei.com/isrp/lms/store-info/car-store-list/query"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_PATH = os.path.join(SCRIPT_DIR, "output/huaWei.csv")
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/huawei.csv")
 
 
 def fetch_stores(brand_code):
@@ -42,8 +43,8 @@ def process_store(store, brand_name):
     processed = {
         "品牌": brand_name,
         "省": store.get("province", ""),
-        "Province": "",  # 实际项目中可能需要中英文转换
-        "City/Area": "",
+        "Province": get_en_province(store.get("province", "")),  # 实际项目中可能需要中英文转换
+        "City/Area": get_en_city(store.get("cityName")),
         "区": store.get("county", ""),
         "店名": store["storeName"],
         "类型": store.get("vehicleStoreTypeCn", "体验中心"),

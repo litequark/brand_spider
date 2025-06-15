@@ -2,7 +2,7 @@
 
 ## 需要爬取的企业
 
-制作爬虫前请先[认领企业](http://zhoukeming.mikecrm.com/zVxC0HQ)，访问密码为`yuyue`
+制作爬虫前请先[认领企业](http://zhoukeming.mikecrm.com/zVxC0HQ)
 
 * 米其林
 * 马牌
@@ -35,6 +35,10 @@
 * 小鹏
 * 零跑
 * 华为
+
+## Python依赖项的处理
+
+Github Actions的程序已经可以自动发现和安装依赖，因此，今后无需再上传requirements.txt。
 
 ## 行政区划处理原则
 

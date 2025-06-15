@@ -9,6 +9,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
+from util.get_cn_province_by_cn_city import get_province_by_city
+from util.location_translator import get_en_city, get_en_province
+
 CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
               "店名", "类型", "地址", "电话", "备注"]
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,6 +30,13 @@ class TmallStoreCrawlerPro:
 
         # 浏览器配置
         chrome_options = Options()
+        #chrome_options.add_argument("--disable-geolocation")
+        #chrome_options.add_argument("--disable-infobars")  # 可选：禁用信息栏提示
+        #chrome_options.add_argument("--no-sandbox")  # 禁用沙盒（Linux必加）
+        #chrome_options.add_argument("--disable-dev-shm-usage")  # 避免内存不足
+        #chrome_options.add_argument("--window-size=1920,1080")  # 设置窗口大小（避免响应式布局问题）
+        #chrome_options.add_argument("--headless=new")  # 启用新版无头模式
+        #chrome_options.add_argument("--disable-gpu")  # 可选：禁用GPU加速（旧版需启用）
         self.driver = webdriver.Chrome(options=chrome_options)
         self.driver.maximize_window()
         self.wait = WebDriverWait(self.driver, 20)
@@ -36,10 +46,10 @@ class TmallStoreCrawlerPro:
 
         row = [
             "天猫养车",  # 品牌
-            "",  # 省
-            "",  # Province
-            "",  # 市区辅助
-            city_name,  # City/Area
+            get_province_by_city(city_name),  # 省
+            get_en_province(get_province_by_city(city_name)),  # Province
+            city_name,  # 市区辅助
+            get_en_city(city_name),  # City/Area
             "",  # 区
             store_data.get("name", ""),  # 店名
             "门店",  # 类型
@@ -52,7 +62,7 @@ class TmallStoreCrawlerPro:
             with open(OUTPUT_PATH, "a", newline="", encoding="gb18030") as f:
                 writer = csv.writer(f)
                 writer.writerow(row)
-            print(f"已写入记录：{store_data.get('name')}")
+            print(json.dumps(row, ensure_ascii=False))
         except Exception as e:
             print(f"写入CSV失败：{str(e)}")
 
@@ -216,7 +226,7 @@ class TmallStoreCrawlerPro:
                     print(f"地址: {store_info.get('address')}")
                     print(f"距离: {store_info.get('distance')}")
                     print(f"营业时间: {store_info.get('hours')}")
-                    print("-" * 50)
+
             except Exception as e:
                 print(f"处理门店元素失败：{str(e)}")
 
@@ -271,5 +281,6 @@ class TmallStoreCrawlerPro:
 
 if __name__ == "__main__":
     crawler = TmallStoreCrawlerPro()
+    crawler.run()
     print("\n--- 爬取完成 ---")
     print(f"CSV文件已保存至：{OUTPUT_PATH}")

@@ -5,17 +5,18 @@ import csv
 import random
 import time
 import requests
-from bs4 import BeautifulSoup
+import bs4
 from typing import Dict, List
 import chardet
 import gzip
+from util.location_translator import get_en_province, get_en_city
 
-# 路径配置
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "output")
-OUTPUT_PATH = os.path.join(OUTPUT_DIR, "goodYear.csv")
+OUTPUT_PATH = os.path.join(OUTPUT_DIR, "goodyear.csv")
 global totalCount
+
 # API配置
 LOCATION_API = "https://www.goodyear.com.cn/wp-content/themes/goodyearforward/js/store/location-filter.json"
 STORE_API = "https://www.goodyear.com.cn/wp-admin/admin-ajax.php"
@@ -56,7 +57,7 @@ def fetch_provinces() -> Dict:
 
 
 def parse_store(html: str) -> List[Dict]:
-    soup = BeautifulSoup(html, 'html.parser')
+    soup = bs4.BeautifulSoup(html, 'html.parser')
     stores = []
 
     for article in soup.find_all('article', class_='store-card'):
@@ -69,25 +70,39 @@ def parse_store(html: str) -> List[Dict]:
 
             # 增强版地址解析
             region_text = ''
+            # 解析省市信息
+            city = ''
+            province = ''
             if address_city_state := article.select_one('.address-city-state'):
                 region_text = address_city_state.text.strip()
+                
+                # 处理城市和省份信息
+                if ',' in region_text:
+                    parts = [p.strip() for p in region_text.split(',')]
+                    if len(parts) >= 2:
+                        # 取第一部分作为城市名
+                        city = parts[0].strip()
+                        province = parts[1].strip()
+                        # 清理城市名称中的多余字符
+                        city = city.replace('\n', '').replace('\r', '').strip()
 
-            # 安全分割地址信息
-            region_parts = region_text.split('/')
-            parts_count = len(region_parts)
+            city_cn_data = city.split('/')
+            city_cn = city_cn_data[1]
+            province = province.replace('\n', '').replace('\r', '').strip()
+            province_cn_data = province.split('/')
+            province_cn = province_cn_data[1]
 
-            # 动态分配地址组件
-            province_cn = region_parts[0].strip() if parts_count > 0 else ''
-            province_en = region_parts[1].strip() if parts_count > 1 else province_cn
-            city_cn = region_parts[2].strip() if parts_count > 2 else ''
-            city_en = region_parts[3].strip() if parts_count > 3 else city_cn
+
+            # 使用工具函数获取标准化的省份和城市名称
+
+            province_en = get_en_province(province_cn) if province_cn else ''
 
             # 构建数据记录
             store_data = {
                 "品牌": "固特异",
                 "省": province_cn,
                 "Province": province_en,
-                "City/Area": city_en,
+                "City/Area": get_en_city(city_cn) if city else '',
                 "市区辅助": city_cn,
                 "区": "",
                 "店名": name,
@@ -97,17 +112,12 @@ def parse_store(html: str) -> List[Dict]:
                 "备注": ""
             }
 
-            # 打印完整信息
-            print("\n[解析成功]")
-            for k, v in store_data.items():
-                print(f"{k}: {v}")
-            print("-" * 40)
-
             stores.append(store_data)
+            print(json.dumps(store_data, ensure_ascii=False))
 
         except Exception as e:
             print(f"解析异常: {str(e)}")
-            print("异常节点内容:", article.prettify()[:200])
+            print("异常节点内容:", article.prettify())
 
     return stores
 
@@ -119,7 +129,7 @@ def save_data(data: List[Dict]):
 
 
 def fetch_store_page(province: str, page: int) -> int:
-    global totalCount
+
     total = 0
     try:
         with requests.Session() as session:
@@ -166,7 +176,7 @@ def fetch_store_page(province: str, page: int) -> int:
                         if stores:
                             save_data(stores)
                             print(f"成功保存 {len(stores)} 条记录")
-                            totalCount+=len(stores)
+
                 except json.JSONDecodeError:
                     print("响应数据不是有效的JSON格式")
                     print("原始响应内容:", content[:500])
@@ -203,7 +213,4 @@ def main():
 
 
 main()
-print(f"所有门店数据抓取完成，总计门店数量：{totalCount}")
-
-
-
+print(f"所有门店数据抓取完成")

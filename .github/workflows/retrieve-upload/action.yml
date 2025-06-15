@@ -1,0 +1,58 @@
+name: "Retrieve & upload data (with dependencies solved)"
+description: "Install Python dependencies, run python spider script and upload artifacts."
+inputs:
+  script-name:
+    description: "Script name (without extension), e.g.: benz"
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5.6.0
+      with:
+        python-version: 3.13
+
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@v1.7.3
+      with:
+        # The Google Chrome/Chromium version to install and use.
+        chrome-version: 136
+        # Install the compatible version of ChromeDriver with the installed Google Chrome/Chromium.
+        install-chromedriver: true
+
+    - name: "Satisfy requirements.txt"
+      run: |
+        echo '[BRAND_SPIDER] Upgrading pip...'
+        python -m pip install --upgrade pip
+        echo '[BRAND_SPIDER] Installing pipreqs...'
+        pip install pipreqs
+        echo '[BRAND_SPIDER] Generating requirements.txt...'
+        pipreqs . --force --encoding=utf8
+        echo '[BRAND_SPIDER] Satisfying requirements.txt...'
+        pip install -r requirements.txt
+      shell: bash
+
+    - name: "Retrieve data"
+      run: |
+        python '${{ github.workspace }}/scripts/${{ inputs.script-name }}.py'
+      shell: bash
+      continue-on-error: true
+
+    - name: "Upload data"
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.script-name }}
+        path: ${{ github.workspace }}/output/*.csv
+        if-no-files-found: 'error'
+      continue-on-error: true
+
+    - name: "Upload log"
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: log-${{ inputs.script-name }}
+        path: ${{ github.workspace }}/log/*.log
+        if-no-files-found: 'ignore'

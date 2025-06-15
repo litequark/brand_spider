@@ -1,7 +1,7 @@
-name: "byd"
+name: "leapmotor"
 
 env:
-  brand: "byd"
+  brand: "leapmotor"
 
 on:
   workflow_dispatch:

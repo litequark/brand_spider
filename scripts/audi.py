@@ -4,7 +4,7 @@ import csv
 from time import sleep
 import requests
 import json
-
+import util.location_translator as ltr
 #加载地区
 def get_audi_cities():
     url = "https://www.audi.cn/bin/dealerprocity/location.json"
@@ -72,9 +72,9 @@ def parse_dealer(dealer):
     return {
         "品牌":"奥迪",
         "省": dealer.get("province", ""),
-        "Province":"",
+        "Province":ltr.get_en_province(dealer.get("province", "")),
         "市区辅助": dealer.get("city", ""),
-        "City/Area":"",
+        "City/Area":ltr.get_en_city(dealer.get("city", "")),
         "区":"",
         "店名": dealer.get("adDealerName", ""),
         "类型": "4S店" if "4S" in dealer.get("tagTitle", []) else "授权经销商",
@@ -134,4 +134,3 @@ for city in citys:
     print(f" {city} 已找到{len(dealers)}家经销商")
     sleep_with_random()
 print(f"数据抓取完成，共获取{total_count}家经销商信息。结果已保存至：{OUTPUT_PATH}")
-

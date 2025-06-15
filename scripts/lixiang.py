@@ -3,14 +3,13 @@ import csv
 import os
 import json
 
+from util.location_translator import get_en_province, get_en_city
 
 API_URL = "https://api-web.lixiang.com/saos-store-web/tur_store/v1-0/service-centers?types=RETAIL%2CDELIVER%2CAFTERSALE%2CSPRAY%2CTEMPORARY_EXHIBITION%2CTEMPORARY_AFTERSALE_SUPPORT&sortType=CITY&storeEffectiveStatus="
-CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
-              "店名", "类型", "地址", "电话", "备注"]
+CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区","店名", "类型", "地址", "电话", "备注"]
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/LiXiang.csv")
-
+OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/lixiang.csv")
 
 def fetch_data():
 
@@ -39,10 +38,10 @@ def save_to_csv(data):
         for item in data:
             row = [
                 "理想",  # 品牌
-                "",  # 省（置空）
-                item.get('provinceName', ''),  # Province
-                "",  # 市区辅助（置空）
-                item.get('cityName', ''),  # City/Area
+                item.get('provinceName', ''),  # 省（置空）
+                get_en_province(item.get('provinceName', '')),  # Province
+                item.get('cityName', ''),  # 市区辅助（置空）
+                get_en_city(item.get('cityName', '')),  # City/Area
                 item.get('countyName', ''),  # 区
                 item.get('name', ''),  # 店名
                 item.get('type', ''),  # 类型
@@ -51,9 +50,7 @@ def save_to_csv(data):
                 ""  # 备注（置空）
             ]
             writer.writerow(row)
-            print(f"爬取 理想 {item.get('provinceName', '')} {item.get('cityName', '')} {item.get('name', '')} {item.get('countyName', '')}{item.get('address', '')}{item.get('telephone', '')}成功")
-
-
+            print(json.dumps(row, ensure_ascii=False))
 
 service_data = fetch_data()
 if service_data:

@@ -1,7 +1,7 @@
-name: "byd"
+name: "kumho"
 
 env:
-  brand: "byd"
+  brand: "kumho"
 
 on:
   workflow_dispatch:

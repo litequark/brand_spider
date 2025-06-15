@@ -1,7 +1,6 @@
 import requests
 import csv
 import os
-import json
 import time
 import random
 from typing import List, Dict
@@ -9,8 +8,12 @@ from typing import List, Dict
 BASE_URL = "https://store-center.leapmotor.cn/leap-store/storeDrainage"
 CSV_HEADER = ["品牌", "省", "Province", "市区辅助", "City/Area", "区",
               "店名", "类型", "地址", "电话", "备注"]
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
-CSV_PATH = os.path.join(OUTPUT_DIR, "leapmotor.csv")
+
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+OUTPUT_PATH = os.path.join(PROJECT_ROOT, "output/leapmotor.csv")
 
 
 def get_province_cities() -> List[Dict]:
@@ -72,14 +75,14 @@ def process_store(store: Dict) -> Dict:
 
 
 def main():
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
 
     provinces = get_province_cities()
     print(f"获取到{len(provinces)}条省市数据")
 
     total_count = 0
 
-    with open(CSV_PATH, 'w', newline='', encoding='utf-8-sig') as csvfile:
+    with open(OUTPUT_PATH, 'w', newline='', encoding='utf-8-sig') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=CSV_HEADER)
         writer.writeheader()
 
